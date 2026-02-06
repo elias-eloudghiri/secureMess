@@ -1,0 +1,51 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: securemessage-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    env_file:
+      - .env.local
+    networks:
+      - secure-network
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  backend:
+    build: ./backend
+    container_name: securemessage-backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env.local
+    volumes:
+      - ./backend/target/backend-0.0.1-SNAPSHOT.jar:/app/app.jar
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - secure-network
+
+  frontend:
+    build: ./front
+    container_name: securemessage-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - secure-network
+
+volumes:
+  mongo-data:
+
+
+networks:
+  secure-network:
+    driver: bridge

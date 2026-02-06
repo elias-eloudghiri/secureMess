@@ -1,0 +1,26 @@
+meta {
+  name: Register Anonymous
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/auth/register
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "password": "password123",
+    "identityKey": "base64_identity_key",
+    "signedPreKey": "base64_signed_pre_key",
+    "signedPreKeyId": 1,
+    "signedPreKeySignature": "base64_signature",
+    "oneTimePreKeys": []
+  }
+}
+
+vars:pre-request {
+  baseUrl: http://localhost:8080/api
+}
