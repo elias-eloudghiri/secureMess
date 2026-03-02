@@ -1,11 +1,11 @@
 services:
   mongodb:
     image: mongo:latest
-    container_name: securemessage-mongo
+    container_name: securemessage-mongo-prod
     ports:
       - "27017:27017"
     volumes:
-      - mongo-data:/data/db
+      - mongo-data-prod:/data/db
     env_file:
       - .env.local
     networks:
@@ -19,13 +19,11 @@ services:
 
   backend:
     build: ./backend
-    container_name: securemessage-backend
+    container_name: securemessage-backend-prod
     ports:
       - "8080:8080"
     env_file:
       - .env.local
-    volumes:
-      - ./backend/target/backend-0.0.1-SNAPSHOT.jar:/app/app.jar
     depends_on:
       mongodb:
         condition: service_healthy
@@ -34,7 +32,7 @@ services:
 
   frontend:
     build: ./front
-    container_name: securemessage-frontend
+    container_name: securemessage-frontend-prod
     ports:
       - "80:80"
     depends_on:
@@ -43,7 +41,7 @@ services:
       - secure-network
 
 volumes:
-  mongo-data:
+  mongo-data-prod:
 
 
 networks:
