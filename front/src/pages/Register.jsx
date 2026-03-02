@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { setAuthenticatedUser } from "../store/userSlice";
 import signalService from "../services/signalService";
-import axios from "axios";
+import api from "../api";
 
 const Register = () => {
   const [password, setPassword] = useState("");
@@ -39,11 +39,7 @@ const Register = () => {
       };
 
       // 3. Send to backend
-      //const response = await api.post('/auth/register', payload);
-      const response = await axios.post(
-        "http://localhost:8080/api/auth/register",
-        payload,
-      );
+      const response = await api.post('/auth/register', payload);
       const username = response.data;
 
       // 4. Store state
@@ -82,6 +78,7 @@ const Register = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            minLength={8}
             style={{ width: "100%", padding: "0.5rem" }}
           />
         </div>
