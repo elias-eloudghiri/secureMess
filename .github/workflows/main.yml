@@ -18,20 +18,19 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: 'maven'
-    - name: Working directory backend
-      run: cd backend
 
     - name: Make mvnw executable
       run: chmod +x mvnw
+      working-directory: backend
 
     - name: Build with Maven
       run: ./mvnw clean verify
-
-    - name: Working directory front
-      run: cd ../front
+      working-directory: backend
 
     - name: Verify format
       run: npm run format:check
+      working-directory: front
 
     - name: Verify lint
       run: npm run check
+      working-directory: front
