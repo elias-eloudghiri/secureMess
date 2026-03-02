@@ -36,7 +36,21 @@ public class UserService {
     return savedUser;
   }
 
-  public User findByUsername(String username) {
-    return userRepository.findByUsername(username).orElse(null);
+  public User findByUuid(String uuid) {
+    return userRepository.findByUsername(uuid).orElse(null);
+  }
+
+  public boolean login(String uuid, String password) {
+    boolean response = false;
+    User user = findByUuid(uuid);
+    if (user == null) {
+      log.warn("Login failed: User not found for UUID {}", uuid);
+      return response;
+    }
+    if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+      log.warn("Login failed: User {} the password was incorrect", uuid);
+      return response;
+    }
+    return true;
   }
 }
