@@ -5,7 +5,7 @@ class SignalService {
     this.directory = {}; // Mock store for now if needed locally
   }
 
-  async generateIdentity(registrationId) {
+  async generateIdentity() {
     return await KeyHelper.generateIdentityKeyPair();
   }
 
@@ -43,7 +43,7 @@ class SignalService {
   // Generate all keys for registration
   async generateKeysForRegistration() {
     const registrationId = await this.generateRegistrationId();
-    const identityKeyPair = await this.generateIdentity(registrationId);
+    const identityKeyPair = await this.generateIdentity();
     const preKeys = await this.generatePreKeys(0, 5); // Generate 5 prekeys
     const signedPreKey = await this.generateSignedPreKey(identityKeyPair, 1);
 
