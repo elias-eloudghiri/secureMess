@@ -29,6 +29,38 @@
 	<properties>
 		<java.version>21</java.version>
 	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<!-- Fix CVE-2022-3509, CVE-2022-3510, CVE-2024-7254, CVE-2022-3171 (from signal-protocol-java) -->
+			<dependency>
+				<groupId>com.google.protobuf</groupId>
+				<artifactId>protobuf-javalite</artifactId>
+				<version>3.25.6</version>
+			</dependency>
+
+			<!-- Fix CVE-2026-24400 -->
+			<dependency>
+				<groupId>org.assertj</groupId>
+				<artifactId>assertj-core</artifactId>
+				<version>3.27.7</version>
+			</dependency>
+
+			<!-- Fix CVE-2026-24734 -->
+			<dependency>
+				<groupId>org.apache.tomcat.embed</groupId>
+				<artifactId>tomcat-embed-core</artifactId>
+				<version>11.0.16</version>
+			</dependency>
+
+			<!-- Fix GHSA-72hv-8253-57qq -->
+			<dependency>
+				<groupId>tools.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+				<version>3.0.5</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
