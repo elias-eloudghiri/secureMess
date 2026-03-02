@@ -39,7 +39,7 @@ const Register = () => {
       };
 
       // 3. Send to backend
-      const response = await api.post('/auth/register', payload);
+      const response = await api.post("/auth/register", payload);
       const username = response.data;
 
       // 4. Store state
