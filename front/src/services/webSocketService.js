@@ -10,7 +10,10 @@ class WebSocketService {
     }
     // Using simple ws/wss protocol for Spring TextWebSocketHandler
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const host = window.location.hostname === 'localhost' ? 'localhost:8080' : window.location.host;
+    const host =
+      window.location.hostname === "localhost"
+        ? "localhost:8080"
+        : window.location.host;
     const wsUrl = `${protocol}//${host}/ws/chat`;
 
     this.socket = new WebSocket(wsUrl);
@@ -31,7 +34,7 @@ class WebSocketService {
       console.log("Disconnected from WS");
       this.socket = null;
       // Reconnect logic disabled for now to prevent React 18 strict mode loops
-      // setTimeout(() => this.connect(uuid), 3000); 
+      // setTimeout(() => this.connect(uuid), 3000);
     };
   }
 

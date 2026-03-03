@@ -98,7 +98,7 @@ const Register = () => {
         <button
           type="submit"
           disabled={loading}
-          className={`auth-button ${generatedUuid ? 'auth-button-success' : 'auth-button-primary'}`}
+          className={`auth-button ${generatedUuid ? "auth-button-success" : "auth-button-primary"}`}
         >
           {loading
             ? "Processing..."

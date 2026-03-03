@@ -51,23 +51,23 @@ class SignalService {
       registrationId,
       identityKeyPair: {
         pubKey: this.arrayBufferToBase64(identityKeyPair.pubKey),
-        privKey: this.arrayBufferToBase64(identityKeyPair.privKey)
+        privKey: this.arrayBufferToBase64(identityKeyPair.privKey),
       },
-      preKeys: preKeys.map(pk => ({
+      preKeys: preKeys.map((pk) => ({
         keyId: pk.keyId,
         keyPair: {
           pubKey: this.arrayBufferToBase64(pk.keyPair.pubKey),
-          privKey: this.arrayBufferToBase64(pk.keyPair.privKey)
-        }
+          privKey: this.arrayBufferToBase64(pk.keyPair.privKey),
+        },
       })),
       signedPreKey: {
         keyId: signedPreKey.keyId,
         signature: this.arrayBufferToBase64(signedPreKey.signature),
         keyPair: {
           pubKey: this.arrayBufferToBase64(signedPreKey.keyPair.pubKey),
-          privKey: this.arrayBufferToBase64(signedPreKey.keyPair.privKey)
-        }
-      }
+          privKey: this.arrayBufferToBase64(signedPreKey.keyPair.privKey),
+        },
+      },
     };
   }
 
@@ -78,13 +78,15 @@ class SignalService {
     if (localKeys && localKeys.identityKeyPair) {
       // Local keys from Redux/localStorage are plain objects with Base64 strings (or ArrayBuffers if fresh)
       // We must ensure they are converted to ArrayBuffers before going into the Store
-      const pubKey = typeof localKeys.identityKeyPair.pubKey === 'string'
-        ? this.base64ToArrayBuffer(localKeys.identityKeyPair.pubKey)
-        : localKeys.identityKeyPair.pubKey;
+      const pubKey =
+        typeof localKeys.identityKeyPair.pubKey === "string"
+          ? this.base64ToArrayBuffer(localKeys.identityKeyPair.pubKey)
+          : localKeys.identityKeyPair.pubKey;
 
-      const privKey = typeof localKeys.identityKeyPair.privKey === 'string'
-        ? this.base64ToArrayBuffer(localKeys.identityKeyPair.privKey)
-        : localKeys.identityKeyPair.privKey;
+      const privKey =
+        typeof localKeys.identityKeyPair.privKey === "string"
+          ? this.base64ToArrayBuffer(localKeys.identityKeyPair.privKey)
+          : localKeys.identityKeyPair.privKey;
 
       this.store.putOurIdentityKey({ pubKey, privKey });
       this.store.putOurRegistrationId(localKeys.registrationId);
@@ -99,7 +101,6 @@ class SignalService {
 
     console.log({ bundle });
 
-
     const deviceBundle = {
       identityKey: this.base64ToArrayBuffer(bundle.identityKey),
       signedPreKey: {
@@ -109,9 +110,9 @@ class SignalService {
       },
       preKey: bundle.preKey
         ? {
-          keyId: bundle.preKey.keyId,
-          publicKey: this.base64ToArrayBuffer(bundle.preKey.publicKey),
-        }
+            keyId: bundle.preKey.keyId,
+            publicKey: this.base64ToArrayBuffer(bundle.preKey.publicKey),
+          }
         : undefined,
       registrationId: 1,
     };

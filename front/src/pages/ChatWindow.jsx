@@ -127,13 +127,12 @@ export default function ChatWindow() {
       <div className="chat-history">
         {!user.keys && (
           <p className="chat-status-text chat-error-text">
-            Error: No local encryption keys found. Cannot establishment E2E session. Please register a new user on this device.
+            Error: No local encryption keys found. Cannot establishment E2E
+            session. Please register a new user on this device.
           </p>
         )}
         {!sessionReady && user.keys && (
-          <p className="chat-status-text">
-            Establishing secure session...
-          </p>
+          <p className="chat-status-text">Establishing secure session...</p>
         )}
         {messages.map((m, i) => {
           const isSent = m.senderId === user.username;
@@ -142,7 +141,9 @@ export default function ChatWindow() {
               key={i}
               className={`chat-message-row ${isSent ? "sent" : "received"}`}
             >
-              <span className={`chat-message-bubble ${isSent ? "sent" : "received"}`}>
+              <span
+                className={`chat-message-bubble ${isSent ? "sent" : "received"}`}
+              >
                 {m.text}
               </span>
             </div>

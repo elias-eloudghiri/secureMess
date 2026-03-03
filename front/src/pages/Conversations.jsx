@@ -40,10 +40,7 @@ export default function Conversations() {
     <div className="conversations-container">
       <div className="conversations-header">
         <h2>My Conversations</h2>
-        <button
-          onClick={handleLogout}
-          className="conversations-logout-button"
-        >
+        <button onClick={handleLogout} className="conversations-logout-button">
           Logout
         </button>
       </div>
