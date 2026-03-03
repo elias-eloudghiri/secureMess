@@ -1,0 +1,28 @@
+meta {
+  name: Create Conversation
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/v1/conversations
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "participants": [
+      "{{uuid}}",
+      "{{targetUuid}}"
+    ]
+  }
+}
+
+vars:pre-request {
+  targetUuid: {{targetUuid}}
+}

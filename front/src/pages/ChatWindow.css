@@ -1,0 +1,91 @@
+/* src/pages/ChatWindow.css */
+
+.chat-window-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+}
+
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.chat-back-btn {
+    /* Inherits button styling from index.css or frameworks */
+}
+
+.chat-security-badge {
+    color: green;
+    font-size: 12px;
+    border: 1px solid green;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+.chat-history {
+    flex: 1;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+}
+
+.chat-status-text {
+    text-align: center;
+    color: gray;
+}
+
+.chat-error-text {
+    color: red;
+}
+
+.chat-message-row {
+    margin-bottom: 10px;
+}
+
+.chat-message-row.sent {
+    text-align: right;
+}
+
+.chat-message-row.received {
+    text-align: left;
+}
+
+.chat-message-bubble {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 15px;
+}
+
+.chat-message-bubble.sent {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.chat-message-bubble.received {
+    background-color: #e9ecef;
+    color: #000;
+}
+
+.chat-input-area {
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input-field {
+    flex: 1;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.chat-send-btn {
+    padding: 10px 20px;
+}

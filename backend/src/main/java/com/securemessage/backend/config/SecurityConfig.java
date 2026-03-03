@@ -22,21 +22,25 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.cors(
-        cors -> cors.configurationSource(
-            request -> {
-              var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
-              corsConfiguration.setAllowedOrigins(java.util.List.of("*"));
-              corsConfiguration.setAllowedMethods(
-                  java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-              corsConfiguration.setAllowedHeaders(java.util.List.of("*"));
-              return corsConfiguration;
-            }))
+            cors ->
+                cors.configurationSource(
+                    request -> {
+                      var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
+                      corsConfiguration.setAllowedOrigins(java.util.List.of("*"));
+                      corsConfiguration.setAllowedMethods(
+                          java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                      corsConfiguration.setAllowedHeaders(java.util.List.of("*"));
+                      return corsConfiguration;
+                    }))
         .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for stateless/API usage
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
-            auth -> auth.requestMatchers("/api/auth/**", "/ws/chat", "/ws/chat/**").permitAll().anyRequest()
-                .authenticated())
+            auth ->
+                auth.requestMatchers("/api/auth/**", "/ws/chat", "/ws/chat/**")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
         .httpBasic(AbstractHttpConfigurer::disable) // Simplify for now
         .formLogin(AbstractHttpConfigurer::disable);

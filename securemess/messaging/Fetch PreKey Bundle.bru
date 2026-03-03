@@ -1,0 +1,19 @@
+meta {
+  name: Fetch PreKey Bundle
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/signal/prekey-bundle/{{targetUuid}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+vars:pre-request {
+  targetUuid: {{targetUuid}}
+}

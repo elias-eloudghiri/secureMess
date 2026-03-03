@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { setAuthenticatedUser } from "../store/userSlice";
 import signalService from "../services/signalService";
 import api from "../api";
+import "./Auth.css";
 
 const Register = () => {
   const [password, setPassword] = useState("");
@@ -40,19 +41,13 @@ const Register = () => {
       // 2. Prepare payload
       const payload = {
         password: password,
-        identityKey: signalService.arrayBufferToBase64(
-          keys.identityKeyPair.pubKey,
-        ),
-        signedPreKey: signalService.arrayBufferToBase64(
-          keys.signedPreKey.keyPair.pubKey,
-        ),
+        identityKey: keys.identityKeyPair.pubKey,
+        signedPreKey: keys.signedPreKey.keyPair.pubKey,
         signedPreKeyId: keys.signedPreKey.keyId,
-        signedPreKeySignature: signalService.arrayBufferToBase64(
-          keys.signedPreKey.signature,
-        ),
+        signedPreKeySignature: keys.signedPreKey.signature,
         oneTimePreKeys: keys.preKeys.map((pk) => ({
           keyId: pk.keyId,
-          publicKey: signalService.arrayBufferToBase64(pk.keyPair.pubKey),
+          publicKey: pk.keyPair.pubKey,
         })),
       };
 
@@ -73,36 +68,23 @@ const Register = () => {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: "400px",
-        margin: "2rem auto",
-        padding: "1rem",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-      }}
-    >
+    <div className="auth-container">
       <h2>Secure Registration</h2>
       <form onSubmit={handleRegister}>
         {generatedUuid && (
-          <div style={{ marginBottom: "1rem" }}>
-            <label style={{ color: "green", fontWeight: "bold" }}>
+          <div className="auth-form-group">
+            <label className="auth-success-label">
               Registration Successful! Save your UUID:
             </label>
             <input
               type="text"
               readOnly
               value={generatedUuid}
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                marginTop: "0.25rem",
-                background: "#e9ecef",
-              }}
+              className="auth-input auth-input-readonly"
             />
           </div>
         )}
-        <div style={{ marginBottom: "1rem" }}>
+        <div className="auth-form-group">
           <label>Choose a Password:</label>
           <input
             type="password"
@@ -110,21 +92,13 @@ const Register = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={8}
-            style={{ width: "100%", padding: "0.5rem", marginTop: "0.25rem" }}
+            className="auth-input"
           />
         </div>
         <button
           type="submit"
           disabled={loading}
-          style={{
-            width: "100%",
-            padding: "0.5rem",
-            background: generatedUuid ? "#28a745" : "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
+          className={`auth-button ${generatedUuid ? 'auth-button-success' : 'auth-button-primary'}`}
         >
           {loading
             ? "Processing..."
@@ -132,13 +106,10 @@ const Register = () => {
               ? "Proceed to Chat"
               : "Register Anonymously"}
         </button>
-        {error && <p style={{ color: "red", marginTop: "1rem" }}>{error}</p>}
+        {error && <p className="auth-error">{error}</p>}
 
-        <div style={{ marginTop: "1rem", textAlign: "center" }}>
-          <Link
-            to="/login"
-            style={{ color: "#007bff", textDecoration: "none" }}
-          >
+        <div className="auth-link-container">
+          <Link to="/login" className="auth-link">
             Already have an account? Login here.
           </Link>
         </div>

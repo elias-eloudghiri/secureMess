@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { setAuthenticatedUser } from "../store/userSlice";
 import api from "../api";
+import "./Auth.css";
 
 const Login = () => {
   const [uuid, setUuid] = useState("");
@@ -18,17 +19,24 @@ const Login = () => {
 
     try {
       // The backend expects @RequestParam for uuid and password
-      const response = await api.post(
-        `/auth/login?uuid=${encodeURIComponent(uuid)}&password=${encodeURIComponent(password)}`,
-      );
+      let request = {
+        uuid: uuid,
+        password: password,
+      };
+      const response = await api.post("/auth/login", request);
 
       const { uuid: returningUuid, accessToken, refreshToken } = response.data;
       if (accessToken) {
-        // We login without local keys for now, as key retrieval/sync is WIP
+        // Retrieve existing keys if they exist in this browser
+        const existingKeysStr = localStorage.getItem("keys");
+        const existingKeys = existingKeysStr
+          ? JSON.parse(existingKeysStr)
+          : null;
+
         dispatch(
           setAuthenticatedUser({
             username: returningUuid,
-            keys: null,
+            keys: existingKeys,
             accessToken,
             refreshToken,
           }),
@@ -45,59 +53,40 @@ const Login = () => {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: "400px",
-        margin: "2rem auto",
-        padding: "1rem",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-      }}
-    >
+    <div className="auth-container">
       <h2>Login</h2>
       <form onSubmit={handleLogin}>
-        <div style={{ marginBottom: "1rem" }}>
+        <div className="auth-form-group">
           <label>UUID (Username):</label>
           <input
             type="text"
             value={uuid}
             onChange={(e) => setUuid(e.target.value)}
             required
-            style={{ width: "100%", padding: "0.5rem", marginTop: "0.25rem" }}
+            className="auth-input"
           />
         </div>
-        <div style={{ marginBottom: "1rem" }}>
+        <div className="auth-form-group">
           <label>Password:</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            style={{ width: "100%", padding: "0.5rem", marginTop: "0.25rem" }}
+            className="auth-input"
           />
         </div>
         <button
           type="submit"
           disabled={loading}
-          style={{
-            width: "100%",
-            padding: "0.5rem",
-            background: "#28a745",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
+          className="auth-button auth-button-success"
         >
           {loading ? "Logging in..." : "Login"}
         </button>
-        {error && <p style={{ color: "red", marginTop: "1rem" }}>{error}</p>}
+        {error && <p className="auth-error">{error}</p>}
 
-        <div style={{ marginTop: "1rem", textAlign: "center" }}>
-          <Link
-            to="/register"
-            style={{ color: "#007bff", textDecoration: "none" }}
-          >
+        <div className="auth-link-container">
+          <Link to="/register" className="auth-link">
             Need an account? Register here.
           </Link>
         </div>

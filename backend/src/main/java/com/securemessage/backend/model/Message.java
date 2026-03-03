@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Message {
   @Id private String id;
 
+  private String conversationId; // ID of the parent Conversation collection
   private String senderId; // UUID
   private String receiverId; // UUID
 

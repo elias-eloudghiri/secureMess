@@ -1,6 +1,7 @@
 package com.securemessage.backend.controller;
 
 import com.securemessage.backend.dto.AuthResponse;
+import com.securemessage.backend.dto.LoginRequest;
 import com.securemessage.backend.dto.RegisterRequest;
 import com.securemessage.backend.model.User;
 import com.securemessage.backend.service.JwtService;
@@ -42,17 +43,17 @@ public class AuthController {
   }
 
   @PostMapping("/login")
-  public ResponseEntity<?> login(@RequestParam String uuid, @RequestParam String password) {
-    boolean success = userService.login(uuid, password);
+  public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    boolean success = userService.login(loginRequest.uuid(), loginRequest.password());
     if (!success) {
       return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED)
           .body("Invalid UUID or password");
     }
 
-    String accessToken = jwtService.generateAccessToken(uuid);
-    String refreshToken = jwtService.generateRefreshToken(uuid);
+    String accessToken = jwtService.generateAccessToken(loginRequest.uuid());
+    String refreshToken = jwtService.generateRefreshToken(loginRequest.uuid());
 
-    return ResponseEntity.ok(new AuthResponse(uuid, accessToken, refreshToken));
+    return ResponseEntity.ok(new AuthResponse(loginRequest.uuid(), accessToken, refreshToken));
   }
 
   @PostMapping("/refresh")
