@@ -27,6 +27,10 @@ jobs:
       run: ./mvnw clean verify
       working-directory: backend
 
+    - name: Npm install
+      run: npm install
+      working-directory: front
+
     - name: Verify format
       run: npm run format:check
       working-directory: front

@@ -5,9 +5,9 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - mongo-data-prod:/data/db
+      - mongo-data:/data/db
     env_file:
-      - .env.local
+      - .env
     networks:
       - secure-network
     healthcheck:
@@ -23,7 +23,7 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - .env.local
+      - .env
     depends_on:
       mongodb:
         condition: service_healthy

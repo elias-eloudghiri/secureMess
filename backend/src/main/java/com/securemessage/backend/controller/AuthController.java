@@ -1,44 +1,72 @@
 package com.securemessage.backend.controller;
 
+import com.securemessage.backend.dto.AuthResponse;
 import com.securemessage.backend.dto.RegisterRequest;
 import com.securemessage.backend.model.User;
+import com.securemessage.backend.service.JwtService;
 import com.securemessage.backend.service.UserService;
+import jakarta.validation.Valid;
+import java.util.Base64;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.securemessage.backend.exception.InvalidRegistrationException;
-import java.util.Base64;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserService userService;
+  private final UserService userService;
+  private final JwtService jwtService;
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        try {
-            // Decode Base64 keys to bytes
-            byte[] identityKey = Base64.getDecoder().decode(request.getIdentityKey());
-            byte[] signedPreKey = Base64.getDecoder().decode(request.getSignedPreKey());
-            byte[] signedPreKeySignature = Base64.getDecoder().decode(request.getSignedPreKeySignature());
+  @PostMapping("/register")
+  public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
 
-            // Convert oneTimePreKeys
-            // Implementation omitted for brevity, logic inside service typically or mapper
+    // Decode Base64 keys to bytes
+    byte[] identityKey = Base64.getDecoder().decode(request.identityKey());
+    byte[] signedPreKey = Base64.getDecoder().decode(request.signedPreKey());
+    byte[] signedPreKeySignature = Base64.getDecoder().decode(request.signedPreKeySignature());
 
-            User user = userService.registerAnonymousUser(
-                    request.getPassword(),
-                    identityKey,
-                    signedPreKey,
-                    request.getSignedPreKeyId(),
-                    signedPreKeySignature);
+    User user =
+        userService.registerAnonymousUser(
+            request.password(),
+            identityKey,
+            signedPreKey,
+            request.signedPreKeyId(),
+            signedPreKeySignature);
 
-            return ResponseEntity.ok(user.getUsername());
-        } catch (IllegalArgumentException e) {
-            throw new InvalidRegistrationException("Failed to decode keys or invalid arguments", e);
-        } catch (Exception e) {
-            throw new InvalidRegistrationException("Registration failed: " + e.getMessage(), e);
-        }
+    String accessToken = jwtService.generateAccessToken(user.getUsername());
+    String refreshToken = jwtService.generateRefreshToken(user.getUsername());
+
+    return ResponseEntity.ok(new AuthResponse(user.getUsername(), accessToken, refreshToken));
+  }
+
+  @PostMapping("/login")
+  public ResponseEntity<?> login(@RequestParam String uuid, @RequestParam String password) {
+    boolean success = userService.login(uuid, password);
+    if (!success) {
+      return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED)
+          .body("Invalid UUID or password");
     }
+
+    String accessToken = jwtService.generateAccessToken(uuid);
+    String refreshToken = jwtService.generateRefreshToken(uuid);
+
+    return ResponseEntity.ok(new AuthResponse(uuid, accessToken, refreshToken));
+  }
+
+  @PostMapping("/refresh")
+  public ResponseEntity<?> refresh(@RequestParam String refreshToken) {
+    try {
+      String uuid = jwtService.extractUuid(refreshToken);
+      if (jwtService.isTokenValid(refreshToken, uuid)) {
+        String newAccessToken = jwtService.generateAccessToken(uuid);
+        return ResponseEntity.ok(new AuthResponse(uuid, newAccessToken, refreshToken));
+      }
+    } catch (Exception e) {
+      // Token invalid/expired
+    }
+    return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED)
+        .body("Invalid or expired refresh token");
+  }
 }
