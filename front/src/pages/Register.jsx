@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 import { setAuthenticatedUser } from "../store/userSlice";
 import signalService from "../services/signalService";
 import api from "../api";
@@ -8,10 +9,27 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [generatedUuid, setGeneratedUuid] = useState("");
+  const [generatedKeys, setGeneratedKeys] = useState(null);
+  const [generatedTokens, setGeneratedTokens] = useState(null);
   const dispatch = useDispatch();
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
+    if (generatedUuid) {
+      // User has already registered and is now proceeding to chat
+      dispatch(
+        setAuthenticatedUser({
+          username: generatedUuid,
+          keys: generatedKeys,
+          accessToken: generatedTokens.accessToken,
+          refreshToken: generatedTokens.refreshToken,
+        }),
+      );
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -40,17 +58,12 @@ const Register = () => {
 
       // 3. Send to backend
       const response = await api.post("/auth/register", payload);
-      const username = response.data;
+      const { uuid, accessToken, refreshToken } = response.data;
 
-      // 4. Store state
-      dispatch(
-        setAuthenticatedUser({
-          username: username,
-          keys: keys, // Store full key objects locally (sensitive!)
-        }),
-      );
-
-      // Ideally save to indexedDB or localStorage here for persistence
+      // 4. Store state locally to display, don't dispatch immediately
+      setGeneratedUuid(uuid);
+      setGeneratedKeys(keys);
+      setGeneratedTokens({ accessToken, refreshToken });
     } catch (err) {
       console.error(err);
       setError("Registration failed");
@@ -71,6 +84,24 @@ const Register = () => {
     >
       <h2>Secure Registration</h2>
       <form onSubmit={handleRegister}>
+        {generatedUuid && (
+          <div style={{ marginBottom: "1rem" }}>
+            <label style={{ color: "green", fontWeight: "bold" }}>
+              Registration Successful! Save your UUID:
+            </label>
+            <input
+              type="text"
+              readOnly
+              value={generatedUuid}
+              style={{
+                width: "100%",
+                padding: "0.5rem",
+                marginTop: "0.25rem",
+                background: "#e9ecef",
+              }}
+            />
+          </div>
+        )}
         <div style={{ marginBottom: "1rem" }}>
           <label>Choose a Password:</label>
           <input
@@ -79,7 +110,7 @@ const Register = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={8}
-            style={{ width: "100%", padding: "0.5rem" }}
+            style={{ width: "100%", padding: "0.5rem", marginTop: "0.25rem" }}
           />
         </div>
         <button
@@ -88,15 +119,29 @@ const Register = () => {
           style={{
             width: "100%",
             padding: "0.5rem",
-            background: "#007bff",
+            background: generatedUuid ? "#28a745" : "#007bff",
             color: "white",
             border: "none",
             borderRadius: "4px",
+            cursor: "pointer",
           }}
         >
-          {loading ? "Generating Keys..." : "Register Anonymously"}
+          {loading
+            ? "Processing..."
+            : generatedUuid
+              ? "Proceed to Chat"
+              : "Register Anonymously"}
         </button>
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <p style={{ color: "red", marginTop: "1rem" }}>{error}</p>}
+
+        <div style={{ marginTop: "1rem", textAlign: "center" }}>
+          <Link
+            to="/login"
+            style={{ color: "#007bff", textDecoration: "none" }}
+          >
+            Already have an account? Login here.
+          </Link>
+        </div>
       </form>
     </div>
   );
