@@ -9,6 +9,7 @@ import com.securemessage.backend.service.UserService;
 import jakarta.validation.Valid;
 import java.util.Base64;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,8 +47,7 @@ public class AuthController {
   public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
     boolean success = userService.login(loginRequest.uuid(), loginRequest.password());
     if (!success) {
-      return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED)
-          .body("Invalid UUID or password");
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid UUID or password");
     }
 
     String accessToken = jwtService.generateAccessToken(loginRequest.uuid());
@@ -67,7 +67,6 @@ public class AuthController {
     } catch (Exception e) {
       // Token invalid/expired
     }
-    return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED)
-        .body("Invalid or expired refresh token");
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired refresh token");
   }
 }

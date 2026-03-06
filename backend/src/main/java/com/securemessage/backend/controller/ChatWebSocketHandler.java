@@ -5,6 +5,7 @@ import com.securemessage.backend.model.Message;
 import com.securemessage.backend.repository.MessageRepository;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -23,14 +24,15 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
   private final Map<String, WebSocketSession> activeSessions = new ConcurrentHashMap<>();
 
   @Override
-  public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+  public void afterConnectionEstablished(@NonNull WebSocketSession session) {
     // We expect the client to send an auth message or pass uuid in query params.
     // Given the JWT filter, it might be easier to have the client send its UUID
     // immediately
   }
 
   @Override
-  protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+  protected void handleTextMessage(@NonNull WebSocketSession session, TextMessage message)
+      throws Exception {
     String payload = message.getPayload();
     Map<String, Object> data = objectMapper.readValue(payload, Map.class);
     String type = (String) data.get("type");
@@ -66,7 +68,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
   }
 
   @Override
-  public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+  public void afterConnectionClosed(
+      @NonNull WebSocketSession session, @NonNull CloseStatus status) {
     activeSessions.values().removeIf(s -> s.getId().equals(session.getId()));
   }
 }
