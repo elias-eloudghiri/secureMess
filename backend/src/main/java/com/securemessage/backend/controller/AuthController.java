@@ -37,18 +37,15 @@ public class AuthController {
             request.signedPreKeyId(),
             signedPreKeySignature);
 
-    String accessToken = jwtService.generateAccessToken(user.getUsername());
-    String refreshToken = jwtService.generateRefreshToken(user.getUsername());
+    String accessToken = jwtService.generateAccessToken(user.getUuid());
+    String refreshToken = jwtService.generateRefreshToken(user.getUuid());
 
-    return ResponseEntity.ok(new AuthResponse(user.getUsername(), accessToken, refreshToken));
+    return ResponseEntity.ok(new AuthResponse(user.getUuid(), accessToken, refreshToken));
   }
 
   @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-    boolean success = userService.login(loginRequest.uuid(), loginRequest.password());
-    if (!success) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid UUID or password");
-    }
+    userService.loginOrThrow(loginRequest.uuid(), loginRequest.password());
 
     String accessToken = jwtService.generateAccessToken(loginRequest.uuid());
     String refreshToken = jwtService.generateRefreshToken(loginRequest.uuid());

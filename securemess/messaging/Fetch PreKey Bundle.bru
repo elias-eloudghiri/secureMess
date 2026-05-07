@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/v1/signal/prekey-bundle/{{targetUuid}}
+  url: {{baseUrl}}/v1/signal/prekey-bundle/{{targetUuid}}
   body: none
   auth: bearer
 }
@@ -15,5 +15,5 @@ auth:bearer {
 }
 
 vars:pre-request {
-  targetUuid: {{targetUuid}}
+  targetUuid: {{createdUserUuid}}
 }

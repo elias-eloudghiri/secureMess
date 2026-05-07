@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtService jwtService;
@@ -60,6 +62,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     } catch (Exception e) {
       // Token is invalid/expired - do nothing, authentication stays null
       // Let Spring Security handle the 403/401
+
+      log.error("JWT authentication failed: {}", e.getMessage());
+      throw new RuntimeException("JWT authentication failed: " + e.getMessage());
     }
 
     filterChain.doFilter(request, response);

@@ -17,11 +17,6 @@ body:json {
   }
 }
 
-vars:pre-request {
-  uuid: {{uuid}}
-  password: {{password}}
-}
-
 script:post-response {
   if (res.getStatus() === 200) {
     const body = res.getBody();

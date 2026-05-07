@@ -1,5 +1,7 @@
 package com.securemessage.backend.service;
 
+import com.securemessage.backend.exception.ErrorCode;
+import com.securemessage.backend.exception.UserException;
 import com.securemessage.backend.model.User;
 import com.securemessage.backend.repository.UserRepository;
 import java.util.UUID;
@@ -24,7 +26,7 @@ public class UserService {
       byte[] signedPreKeySignature) {
     log.info("Registering new anonymous user with signedPreKeyId: {}", signedPreKeyId);
     User user = new User();
-    user.setUsername(UUID.randomUUID().toString());
+    user.setUuid(UUID.randomUUID().toString());
     user.setPasswordHash(passwordEncoder.encode(password));
     user.setIdentityKey(identityKey);
     user.setSignedPreKey(signedPreKey);
@@ -32,25 +34,23 @@ public class UserService {
     user.setSignedPreKeySignature(signedPreKeySignature);
 
     User savedUser = userRepository.save(user);
-    log.info("Anonymous user registered successfully. Username: {}", savedUser.getUsername());
+    log.info("Anonymous user registered successfully. Username: {}", savedUser.getUuid());
     return savedUser;
   }
 
   public User findByUuid(String uuid) {
-    return userRepository.findByUsername(uuid).orElse(null);
+    return userRepository.findByUuid(uuid).orElse(null);
   }
 
-  public boolean login(String uuid, String password) {
-    boolean response = false;
+  public void loginOrThrow(String uuid, String password) {
     User user = findByUuid(uuid);
     if (user == null) {
       log.warn("Login failed: User not found for UUID {}", uuid);
-      return response;
+      throw new UserException(ErrorCode.USER_NOT_FOUND);
     }
     if (!passwordEncoder.matches(password, user.getPasswordHash())) {
       log.warn("Login failed: User {} the password was incorrect", uuid);
-      return response;
+      throw new UserException(ErrorCode.PASSWORD_INCORRECT);
     }
-    return true;
   }
 }

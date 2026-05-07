@@ -30,7 +30,7 @@ public class SignalControllerTest {
   @Test
   void testGetPreKeyBundle_Success() {
     User mockUser = new User();
-    mockUser.setUsername("test-uuid");
+    mockUser.setUuid("test-uuid");
     mockUser.setIdentityKey("identityKeyData".getBytes());
     mockUser.setSignedPreKey("signedKeyData".getBytes());
     mockUser.setSignedPreKeyId(1);
@@ -43,7 +43,7 @@ public class SignalControllerTest {
     preKeys.add(pk);
     mockUser.setOneTimePreKeys(preKeys);
 
-    when(userRepository.findByUsername("test-uuid")).thenReturn(Optional.of(mockUser));
+    when(userRepository.findByUuid("test-uuid")).thenReturn(Optional.of(mockUser));
 
     ResponseEntity<PreKeyBundleResponse> response = signalController.getPreKeyBundle("test-uuid");
 
@@ -61,12 +61,8 @@ public class SignalControllerTest {
 
   @Test
   void testGetPreKeyBundle_UserNotFound() {
-    when(userRepository.findByUsername("unknown-uuid")).thenReturn(Optional.empty());
+    when(userRepository.findByUuid("unknown-uuid")).thenReturn(Optional.empty());
 
-    assertThrows(
-        RuntimeException.class,
-        () -> {
-          signalController.getPreKeyBundle("unknown-uuid");
-        });
+    assertThrows(RuntimeException.class, () -> signalController.getPreKeyBundle("unknown-uuid"));
   }
 }

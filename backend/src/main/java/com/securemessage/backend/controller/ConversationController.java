@@ -2,12 +2,13 @@ package com.securemessage.backend.controller;
 
 import com.securemessage.backend.model.Conversation;
 import com.securemessage.backend.model.Message;
-import com.securemessage.backend.repository.ConversationRepository;
-import com.securemessage.backend.repository.MessageRepository;
-import java.util.Date;
+import com.securemessage.backend.model.User;
+import com.securemessage.backend.service.ConversationService;
+import com.securemessage.backend.service.UserService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,26 +16,29 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ConversationController {
 
-  private final ConversationRepository conversationRepository;
-  private final MessageRepository messageRepository;
+  private final ConversationService conversationService;
+  private final UserService userService;
 
-  @GetMapping("/user/{userId}")
-  public ResponseEntity<List<Conversation>> getConversations(@PathVariable String userId) {
-    return ResponseEntity.ok(
-        conversationRepository.findByParticipantsContainingOrderByLastMessageAtDesc(userId));
+  private User getCurrentUser() {
+    String UserUuid = SecurityContextHolder.getContext().getAuthentication().getName();
+    return userService.findByUuid(UserUuid);
+  }
+
+  @GetMapping("/")
+  public ResponseEntity<List<Conversation>> getConversations() {
+    User user = getCurrentUser();
+    return ResponseEntity.ok(conversationService.getConversationsOfUser(user.getUuid()));
   }
 
   @GetMapping("/{conversationId}/messages")
   public ResponseEntity<List<Message>> getMessages(@PathVariable String conversationId) {
-    return ResponseEntity.ok(
-        messageRepository.findByConversationIdOrderByTimestampAsc(conversationId));
+    // User user = getCurrentUser(); TODO: check if conversation exists and user is part of it
+    return ResponseEntity.ok(conversationService.getMessagesOfConversation(conversationId));
   }
 
-  @PostMapping
-  public ResponseEntity<Conversation> createConversation(@RequestBody Conversation conversation) {
-    if (conversation.getLastMessageAt() == null) {
-      conversation.setLastMessageAt(new Date());
-    }
-    return ResponseEntity.ok(conversationRepository.save(conversation));
+  @PostMapping("/")
+  public ResponseEntity<Conversation> createConversation(@RequestBody List<String> participants) {
+    User user = getCurrentUser();
+    return ResponseEntity.ok(conversationService.createConversation(user, participants));
   }
 }

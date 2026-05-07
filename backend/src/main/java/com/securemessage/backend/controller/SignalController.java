@@ -5,6 +5,8 @@ import com.securemessage.backend.model.User;
 import com.securemessage.backend.repository.UserRepository;
 import java.util.Base64;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,13 +15,15 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class SignalController {
 
+  private static final Logger log = LoggerFactory.getLogger(SignalController.class);
   private final UserRepository userRepository;
 
   @GetMapping("/prekey-bundle/{uuid}")
   public ResponseEntity<PreKeyBundleResponse> getPreKeyBundle(@PathVariable String uuid) {
+    log.info("Fetching pre-key bundle for UUID: {}", uuid);
     User user =
         userRepository
-            .findByUsername(uuid) // Using username as UUID based on User.java mapping
+            .findByUuid(uuid) // Using username as UUID based on User.java mapping
             .orElseThrow(() -> new RuntimeException("User not found"));
 
     PreKeyBundleResponse response = new PreKeyBundleResponse();
