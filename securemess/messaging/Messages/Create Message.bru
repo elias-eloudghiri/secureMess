@@ -1,0 +1,22 @@
+meta {
+  name: Create Message
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/v1/messages/create/69fc49a4f275fd3c799033a5
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    messageContent: "Hello"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

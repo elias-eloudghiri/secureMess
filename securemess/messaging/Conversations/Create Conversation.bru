@@ -1,0 +1,31 @@
+meta {
+  name: Create Conversation
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/v1/conversations/
+  body: json
+  auth: inherit
+}
+
+body:json {
+  [
+      "{{SenderUuid}}",
+      "{{ReceiverUuid}}"
+    ]
+  
+}
+
+vars:pre-request {
+  SenderUuid: {{createdUserUuid}}
+  ReceiverUuid: 957517e5-4895-4e12-90dd-c50b153aba01
+}
+
+script:post-response {
+  if (res.getStatus() === 200 || res.getStatus() === 201) {
+    const body = res.getBody();
+    bru.setEnvVar("conversationId", body.id);
+  }
+}

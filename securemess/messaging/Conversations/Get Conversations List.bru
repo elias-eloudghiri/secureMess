@@ -1,0 +1,15 @@
+meta {
+  name: Get Conversations List
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/conversations/user/{{targetUuid}}
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  targetUuid: {{createdUserUuid}}
+}
