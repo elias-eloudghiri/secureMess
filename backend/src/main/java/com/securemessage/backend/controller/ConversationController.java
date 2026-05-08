@@ -32,8 +32,8 @@ public class ConversationController {
 
   @GetMapping("/{conversationId}/messages")
   public ResponseEntity<List<Message>> getMessages(@PathVariable String conversationId) {
-    // User user = getCurrentUser(); TODO: check if conversation exists and user is part of it
-    return ResponseEntity.ok(conversationService.getMessagesOfConversation(conversationId));
+    User user = getCurrentUser();
+    return ResponseEntity.ok(conversationService.getMessagesOfConversation(user, conversationId));
   }
 
   @PostMapping("/")

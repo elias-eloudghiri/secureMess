@@ -10,7 +10,9 @@ public enum ErrorCode {
   INVALID_CONVERSATION_PARTICIPANTS(HttpStatus.BAD_REQUEST, "Invalid conversation participants"),
   UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Unauthorized"),
   INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error"),
-  PASSWORD_INCORRECT(HttpStatus.UNAUTHORIZED, "Incorrect password");
+  PASSWORD_INCORRECT(HttpStatus.UNAUTHORIZED, "Incorrect password"),
+  USER_NOT_FOUND_IN_PARTICIPANTS(
+      HttpStatus.NOT_FOUND, "User not found in conversation participants");
 
   private final HttpStatus status;
   private final String defaultMessage;

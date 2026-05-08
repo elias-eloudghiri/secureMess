@@ -26,7 +26,7 @@ public class ConversationService {
     return conversationRepository.findByParticipantsContainingOrderByLastMessageAtDesc(userUuid);
   }
 
-  public List<Message> getMessagesOfConversation(String conversationId) {
+  public List<Message> getMessagesOfConversation(User user, String conversationId) {
     log.info("Fetching messages for conversation: {}", conversationId);
 
     Conversation conversation = conversationRepository.findById(conversationId).orElse(null);
@@ -35,6 +35,12 @@ public class ConversationService {
       throw new UserException(
           ErrorCode.CONVERSATION_NOT_FOUND,
           "Conversation with id " + conversationId + " was not found");
+    }
+    if (!conversation.getParticipants().contains(user.getUuid())) {
+      log.error("User {} is not a participant of conversation {}", user.getUuid(), conversationId);
+      throw new UserException(
+          ErrorCode.USER_NOT_FOUND_IN_PARTICIPANTS,
+          "User with uuid " + user.getUuid() + " is not a participant of this conversation");
     }
     return messageRepository.findByConversationIdOrderByTimestampAsc(conversationId);
   }
@@ -46,7 +52,7 @@ public class ConversationService {
       log.error(
           "User cannot create a conversation without being a participant: {}", user.getUuid());
       throw new UserException(
-          ErrorCode.INVALID_CONVERSATION_PARTICIPANTS,
+          ErrorCode.USER_NOT_FOUND_IN_PARTICIPANTS,
           "User must be a participant in the conversation");
     }
     for (String participantUuid : participants) {
