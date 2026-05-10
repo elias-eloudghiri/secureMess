@@ -12,7 +12,7 @@ export default function Conversations() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [newChatUuid, setNewChatUuid] = useState("");
-  let conversations = [];
+  const [conversations, setConversations] = useState([]);
 
   useEffect(() => {
     // Fetch conversations
@@ -21,7 +21,7 @@ export default function Conversations() {
         headers: { Authorization: `Bearer ${user.accessToken}` },
       })
       .then((res) => {
-        conversations = res.data;
+        setConversations(res.data);
       })
       // .then((data) => dispatch(setConversations(data)))
       .catch((err) => console.error(err));
@@ -29,7 +29,14 @@ export default function Conversations() {
 
   const startNewChat = () => {
     if (newChatUuid.trim()) {
-      navigate(`/chat/${newChatUuid.trim()}`);
+      api
+        .post("/v1/conversations/", [user.username, newChatUuid.trim()])
+        .catch((err) =>
+          console.log("Error while creating the conversation occurred : ", err)
+        )
+        .then((response) => {
+          if (response.status === 200) navigate(`/chat/${newChatUuid.trim()}`);
+        });
     }
   };
 
@@ -67,14 +74,13 @@ export default function Conversations() {
         ) : (
           conversations.map((conv) => {
             const otherParticipant = conv.participants.find(
-              (p) => p !== user.username,
+              (p) => p !== user.username
             );
             return (
               <li
                 key={conv.id}
                 className="conversation-item"
-                onClick={() => navigate(`/chat/${otherParticipant}`)}
-              >
+                onClick={() => navigate(`/chat/${otherParticipant}`)}>
                 <strong>Chat with:</strong> {otherParticipant}
               </li>
             );

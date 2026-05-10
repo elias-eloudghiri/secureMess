@@ -25,7 +25,7 @@ class SignalService {
   async generateSignedPreKey(identityKeyPair, signedPreKeyId) {
     return await KeyHelper.generateSignedPreKey(
       identityKeyPair,
-      signedPreKeyId,
+      signedPreKeyId
     );
   }
 
@@ -149,12 +149,12 @@ class SignalService {
     if (ciphertext.type === 3) {
       plaintextBuffer = await sessionCipher.decryptPreKeyWhisperMessage(
         ciphertext.body,
-        "binary",
+        "binary"
       );
     } else {
       plaintextBuffer = await sessionCipher.decryptWhisperMessage(
         ciphertext.body,
-        "binary",
+        "binary"
       );
     }
 

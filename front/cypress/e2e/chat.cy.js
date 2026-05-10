@@ -18,7 +18,7 @@ describe("Epic 2: E2E Messaging Flow", () => {
 
     // 4. Start New Chat Component
     cy.get('input[placeholder="Enter user UUID to start chat"]').type(
-      "bob-uuid",
+      "bob-uuid"
     );
     cy.get("button").contains("Start Chat").click();
 

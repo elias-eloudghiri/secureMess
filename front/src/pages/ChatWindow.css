@@ -46,6 +46,48 @@
   color: red;
 }
 
+.chat-message-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.chat-message-row.received .chat-message-content {
+  align-items: flex-start;
+}
+
+.chat-message-status {
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.chat-message-status.sending {
+  color: #6b7280;
+}
+
+.chat-message-status.failed {
+  color: #dc2626;
+}
+
+.sending-dots {
+  display: inline-block;
+  width: 18px;
+  overflow: hidden;
+  vertical-align: bottom;
+  animation: sending-dots 1.2s steps(4, end) infinite;
+}
+
+@keyframes sending-dots {
+  0% {
+    width: 0;
+  }
+
+  100% {
+    width: 18px;
+  }
+}
+
 .chat-message-row {
   margin-bottom: 10px;
 }

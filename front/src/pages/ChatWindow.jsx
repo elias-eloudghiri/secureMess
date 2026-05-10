@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
+  addMessageToConversation,
   setActiveConversation,
-  setActiveMessages,
-  addMessage,
+  updateMessageStatus,
 } from "../store/chatSlice";
 import signalService from "../services/signalService";
 import webSocketService from "../services/webSocketService";
@@ -13,11 +13,14 @@ import "./ChatWindow.css";
 
 export default function ChatWindow() {
   const { uuid } = useParams(); // Recipient UUID
+  const activeConversationId = uuid;
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const user = useSelector((state) => state.user);
-  const messages = useSelector((state) => state.chat.activeMessages);
+  const messages = useSelector(
+    (state) => state.chat.messagesByConversationId[activeConversationId] || []
+  );
 
   const [text, setText] = useState("");
   const [sessionReady, setSessionReady] = useState(false);
@@ -49,7 +52,7 @@ export default function ChatWindow() {
         `http://localhost:8080/api/v1/signal/prekey-bundle/${uuid}`,
         {
           headers: { Authorization: `Bearer ${user.accessToken}` },
-        },
+        }
       );
       if (!res.ok) throw new Error("Failed to fetch bundle");
       const bundle = await res.json();
@@ -70,15 +73,19 @@ export default function ChatWindow() {
         try {
           const decrypted = await signalService.decryptMessage(
             uuid,
-            msg.encryptedContent,
+            msg.encryptedContent
           );
           dispatch(
-            addMessage({
-              id: msg.id,
-              senderId: msg.senderId,
-              text: decrypted,
-              timestamp: msg.timestamp,
-            }),
+            addMessageToConversation({
+              conversationId: activeConversationId,
+              message: {
+                id: msg.id,
+                senderId: msg.senderId,
+                text: decrypted,
+                timestamp: msg.timestamp,
+                status: "received",
+              },
+            })
           );
         } catch (err) {
           console.error("Failed to decrypt message:", err);
@@ -89,29 +96,51 @@ export default function ChatWindow() {
 
   const sendMessage = async () => {
     if (!text.trim() || !sessionReady) return;
-    try {
-      const encrypted = await signalService.encryptMessage(uuid, text);
 
-      // Optimistic UI update
-      dispatch(
-        addMessage({
-          id: Date.now().toString(),
+    const temporaryId = `temp-${Date.now()}`;
+    const messageText = text;
+
+    dispatch(
+      addMessageToConversation({
+        conversationId: activeConversationId,
+        message: {
+          id: temporaryId,
           senderId: user.username,
-          text,
+          text: messageText,
           timestamp: new Date().toISOString(),
-        }),
-      );
+          status: "sending",
+        },
+      })
+    );
+
+    setText("");
+
+    try {
+      const encrypted = await signalService.encryptMessage(uuid, messageText);
 
       webSocketService.sendMessage({
         senderId: user.username,
         receiverId: uuid,
         encryptedContent: encrypted,
-        conversationId: "temp", // Backend can generate or manage
+        conversationId: activeConversationId, // Temporary front key until routes use real conversation ids
       });
-
-      setText("");
+      dispatch(
+        updateMessageStatus({
+          conversationId: activeConversationId,
+          messageId: temporaryId,
+          status: "sent",
+        })
+      );
     } catch (err) {
       console.error("Failed to encrypt/send:", err);
+
+      dispatch(
+        updateMessageStatus({
+          conversationId: activeConversationId,
+          messageId: temporaryId,
+          status: "failed",
+        })
+      );
     }
   };
 
@@ -134,21 +163,37 @@ export default function ChatWindow() {
         {!sessionReady && user.keys && (
           <p className="chat-status-text">Establishing secure session...</p>
         )}
-        {messages.map((m, i) => {
-          const isSent = m.senderId === user.username;
-          return (
-            <div
-              key={i}
-              className={`chat-message-row ${isSent ? "sent" : "received"}`}
-            >
-              <span
-                className={`chat-message-bubble ${isSent ? "sent" : "received"}`}
-              >
-                {m.text}
-              </span>
-            </div>
-          );
-        })}
+        {messages === undefined ? (
+          <p className="chat-status-text">Loading messages...</p>
+        ) : (
+          messages.map((m, i) => {
+            const isSent = m.senderId === user.username;
+            return (
+              <div
+                key={i}
+                className={`chat-message-row ${isSent ? "sent" : "received"}`}>
+                <div className="chat-message-content">
+                  <span
+                    className={`chat-message-bubble ${isSent ? "sent" : "received"}`}>
+                    {m.text}
+                  </span>
+
+                  {isSent && m.status === "sending" && (
+                    <span className="chat-message-status sending">
+                      En cours d'envoi<span className="sending-dots">...</span>
+                    </span>
+                  )}
+
+                  {isSent && m.status === "failed" && (
+                    <span className="chat-message-status failed">
+                      Echec de l'envoi
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
       <div className="chat-input-area">
@@ -164,8 +209,7 @@ export default function ChatWindow() {
         <button
           className="chat-send-btn"
           onClick={sendMessage}
-          disabled={!sessionReady}
-        >
+          disabled={!sessionReady}>
           Send
         </button>
       </div>

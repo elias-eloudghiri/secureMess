@@ -1,5 +1,5 @@
-import {store} from "../store";
-import {logout, updateAccessToken} from "../store/userSlice";
+import { store } from "../store";
+import { logout, updateAccessToken } from "../store/userSlice";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -34,7 +34,7 @@ const refreshAccessToken = async () => {
     `${BASE_URL}/auth/refresh?refreshToken=${encodeURIComponent(state.refreshToken)}`,
     {
       method: "POST",
-    },
+    }
   );
   const data = await parseResponseBody(response);
 

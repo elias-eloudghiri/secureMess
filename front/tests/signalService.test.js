@@ -33,19 +33,19 @@ describe("SignalService Encryption & Decryption", () => {
     // 3. Alice initiates session with Bob
     const bobBundle = {
       identityKey: signalService.arrayBufferToBase64(
-        bobKeys.identityKeyPair.pubKey,
+        bobKeys.identityKeyPair.pubKey
       ),
       signedPreKeyId: 1,
       signedPreKey: signalService.arrayBufferToBase64(
-        bobKeys.signedPreKey.keyPair.pubKey,
+        bobKeys.signedPreKey.keyPair.pubKey
       ),
       signedPreKeySignature: signalService.arrayBufferToBase64(
-        bobKeys.signedPreKey.signature,
+        bobKeys.signedPreKey.signature
       ),
       preKey: {
         keyId: bobKeys.preKeys[0].keyId,
         publicKey: signalService.arrayBufferToBase64(
-          bobKeys.preKeys[0].keyPair.pubKey,
+          bobKeys.preKeys[0].keyPair.pubKey
         ),
       },
     };
@@ -57,7 +57,7 @@ describe("SignalService Encryption & Decryption", () => {
     const plaintext = "Hello from Alice!";
     const encryptedMsgStr = await signalService.encryptMessage(
       "bob-uuid",
-      plaintext,
+      plaintext
     );
     const encryptedMsg = JSON.parse(encryptedMsgStr);
 

@@ -51,7 +51,7 @@ class WebSocketService {
         JSON.stringify({
           type: "MESSAGE",
           ...messageObj,
-        }),
+        })
       );
     } else {
       console.error("WebSocket is not connected");

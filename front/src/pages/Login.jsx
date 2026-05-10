@@ -32,6 +32,9 @@ const Login = () => {
         const existingKeys = existingKeysStr
           ? JSON.parse(existingKeysStr)
           : null;
+        if (existingKeys == null) {
+          console.log("No existing keys found in localStorage for this user");
+        }
 
         dispatch(
           setAuthenticatedUser({
@@ -39,7 +42,7 @@ const Login = () => {
             keys: existingKeys,
             accessToken,
             refreshToken,
-          }),
+          })
         );
       } else {
         setError("Invalid UUID or password");
@@ -79,8 +82,7 @@ const Login = () => {
         <button
           type="submit"
           disabled={loading}
-          className="auth-button auth-button-success"
-        >
+          className="auth-button auth-button-success">
           {loading ? "Logging in..." : "Login"}
         </button>
         {error && <p className="auth-error">{error}</p>}
