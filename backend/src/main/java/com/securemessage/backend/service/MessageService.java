@@ -45,7 +45,7 @@ public class MessageService {
 
     Message newMessage = new Message();
     newMessage.setConversationId(conversationId);
-    newMessage.setSenderId(user.getId());
+    newMessage.setSenderId(user.getUuid());
     newMessage.setReceiverId(receiverId);
     newMessage.setEncryptedContent(messageContent);
     newMessage.setType(1); // Assuming 1 for regular SignalMessage, adjust as needed
