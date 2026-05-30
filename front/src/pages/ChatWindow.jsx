@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addMessageToConversation,
@@ -14,7 +14,8 @@ import api from "../api/index.js";
 
 export default function ChatWindow() {
   const { uuid } = useParams(); // Recipient UUID
-  const activeConversationId = uuid;
+  const location = useLocation();
+  const activeConversationId = location.state?.conversationId ?? uuid;
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -73,7 +74,7 @@ export default function ChatWindow() {
           );
           dispatch(
             addMessageToConversation({
-              conversationId: activeConversationId,
+              conversationId: msg.conversationId,
               message: {
                 id: msg.id,
                 senderId: msg.senderId,

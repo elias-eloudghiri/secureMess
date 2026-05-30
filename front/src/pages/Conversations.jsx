@@ -80,7 +80,11 @@ export default function Conversations() {
               <li
                 key={conv.id}
                 className="conversation-item"
-                onClick={() => navigate(`/chat/${otherParticipant}`)}>
+                onClick={() =>
+                  navigate(`/chat/${otherParticipant}`, {
+                    state: { conversationId: conv.id },
+                  })
+                }>
                 <strong>Chat with:</strong> {otherParticipant}
               </li>
             );
