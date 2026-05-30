@@ -76,8 +76,6 @@ class SignalService {
   initStore(store, localKeys) {
     this.store = store;
     if (localKeys && localKeys.identityKeyPair) {
-      // Local keys from Redux/localStorage are plain objects with Base64 strings (or ArrayBuffers if fresh)
-      // We must ensure they are converted to ArrayBuffers before going into the Store
       const pubKey =
         typeof localKeys.identityKeyPair.pubKey === "string"
           ? this.base64ToArrayBuffer(localKeys.identityKeyPair.pubKey)
@@ -90,6 +88,42 @@ class SignalService {
 
       this.store.putOurIdentityKey({ pubKey, privKey });
       this.store.putOurRegistrationId(localKeys.registrationId);
+
+      // Recharger les prekeys privées dans le store
+      // (nécessaire pour déchiffrer les PreKeyWhisperMessages entrants)
+      if (localKeys.preKeys) {
+        localKeys.preKeys.forEach((pk) => {
+          const pubKey =
+            typeof pk.keyPair.pubKey === "string"
+              ? this.base64ToArrayBuffer(pk.keyPair.pubKey)
+              : pk.keyPair.pubKey;
+          const privKey =
+            typeof pk.keyPair.privKey === "string"
+              ? this.base64ToArrayBuffer(pk.keyPair.privKey)
+              : pk.keyPair.privKey;
+          this.store.storePreKey(pk.keyId, { pubKey, privKey });
+        });
+      }
+
+      if (localKeys.signedPreKey) {
+        const pubKey =
+          typeof localKeys.signedPreKey.keyPair.pubKey === "string"
+            ? this.base64ToArrayBuffer(localKeys.signedPreKey.keyPair.pubKey)
+            : localKeys.signedPreKey.keyPair.pubKey;
+        const privKey =
+          typeof localKeys.signedPreKey.keyPair.privKey === "string"
+            ? this.base64ToArrayBuffer(localKeys.signedPreKey.keyPair.privKey)
+            : localKeys.signedPreKey.keyPair.privKey;
+        this.store.storeSignedPreKey(localKeys.signedPreKey.keyId, {
+          pubKey,
+          privKey,
+        });
+      }
+      console.log("Bob store loaded", {
+        identityPub: localKeys.identityKeyPair.pubKey,
+        signedPreKeyId: localKeys.signedPreKey.keyId,
+        preKeyIds: localKeys.preKeys.map((pk) => pk.keyId),
+      });
     }
   }
 
@@ -106,18 +140,11 @@ class SignalService {
     const signedPreKeyId = bundle.signedPreKeyId
       ? bundle.signedPreKeyId
       : bundle.signedPreKey.keyId;
-    console.log("signedPreKeyPub");
-    //console.log({ attributeToConvert: bundle.preKey.publicKey });
-    // BcN4KKq+2+TZ8Ii5MFuTj+iNhJdxHbsRYnlLz1R4LbMQ
-    console.log({ bundle });
-    const str = "BcN4KKq+2+TZ8Ii5MFuTj+iNhJdxHbsRYnlLz1R4LbMQ";
-    console.log({ str: bundle.signedPreKey.keyPair.pubKey });
-    console.log(bundle.signedPreKey.keyPair.pubKey === str);
-    console.log(atob(str)); // Should work if no hidden characters exist
+
     const signedPreKeyPub = bundle.signedPreKey.keyPair.pubKey
       ? this.base64ToArrayBuffer(bundle.signedPreKey.keyPair.pubKey) // bundle recup depuis le localStorage (après inscription)
       : this.base64ToArrayBuffer(bundle.signedPreKey); // bundle recup depuis le back
-    console.log("signedPreKeySignature");
+
     const signedPreKeySignature = bundle.signedPreKeySignature
       ? this.base64ToArrayBuffer(bundle.signedPreKeySignature) // bundle recup depuis le back
       : this.base64ToArrayBuffer(bundle.signedPreKey.signature); // bundle recup depuis le localStorage (après inscription)

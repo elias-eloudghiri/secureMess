@@ -53,6 +53,11 @@ export default function ChatWindow() {
     }
 
     try {
+      console.log("Bundle fetched for", uuid, {
+        identityKey: bundle.identityKey,
+        signedPreKeyId: bundle.signedPreKeyId,
+        preKeyId: bundle.preKey?.keyId,
+      });
       await signalService.startSession(uuid, bundle);
       setSessionReady(true);
 
