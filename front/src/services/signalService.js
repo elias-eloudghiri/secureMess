@@ -99,14 +99,35 @@ class SignalService {
     const address = new SignalProtocolAddress(recipientUUID, 1);
     const sessionBuilder = new SessionBuilder(this.store, address);
 
+    const pubKey = bundle.identityKey
+      ? this.base64ToArrayBuffer(bundle.identityKey) // bundle recup depuis le back
+      : this.base64ToArrayBuffer(bundle.identityKeyPair.pubKey); // bundle recup depuis le localStorage (après inscription)
+
+    const signedPreKeyId = bundle.signedPreKeyId
+      ? bundle.signedPreKeyId
+      : bundle.signedPreKey.keyId;
+    console.log("signedPreKeyPub");
+    //console.log({ attributeToConvert: bundle.preKey.publicKey });
+    // BcN4KKq+2+TZ8Ii5MFuTj+iNhJdxHbsRYnlLz1R4LbMQ
     console.log({ bundle });
+    const str = "BcN4KKq+2+TZ8Ii5MFuTj+iNhJdxHbsRYnlLz1R4LbMQ";
+    console.log({ str: bundle.signedPreKey.keyPair.pubKey });
+    console.log(bundle.signedPreKey.keyPair.pubKey === str);
+    console.log(atob(str)); // Should work if no hidden characters exist
+    const signedPreKeyPub = bundle.signedPreKey.keyPair.pubKey
+      ? this.base64ToArrayBuffer(bundle.signedPreKey.keyPair.pubKey) // bundle recup depuis le localStorage (après inscription)
+      : this.base64ToArrayBuffer(bundle.signedPreKey); // bundle recup depuis le back
+    console.log("signedPreKeySignature");
+    const signedPreKeySignature = bundle.signedPreKeySignature
+      ? this.base64ToArrayBuffer(bundle.signedPreKeySignature) // bundle recup depuis le back
+      : this.base64ToArrayBuffer(bundle.signedPreKey.signature); // bundle recup depuis le localStorage (après inscription)
 
     const deviceBundle = {
-      identityKey: this.base64ToArrayBuffer(bundle.identityKey),
+      identityKey: pubKey,
       signedPreKey: {
-        keyId: bundle.signedPreKeyId,
-        publicKey: this.base64ToArrayBuffer(bundle.signedPreKey),
-        signature: this.base64ToArrayBuffer(bundle.signedPreKeySignature),
+        keyId: signedPreKeyId,
+        publicKey: signedPreKeyPub,
+        signature: signedPreKeySignature,
       },
       preKey: bundle.preKey
         ? {

@@ -10,6 +10,7 @@ import signalService from "../services/signalService";
 import webSocketService from "../services/webSocketService";
 
 import "./ChatWindow.css";
+import api from "../api/index.js";
 
 export default function ChatWindow() {
   const { uuid } = useParams(); // Recipient UUID
@@ -25,37 +26,32 @@ export default function ChatWindow() {
   const [text, setText] = useState("");
   const [sessionReady, setSessionReady] = useState(false);
 
-  useEffect(() => {
-    dispatch(setActiveConversation(uuid));
-
-    // Connect WebSocket
-    webSocketService.connect(user.username);
-    const unsubscribe = webSocketService.subscribe(handleIncomingMessage);
-
-    // Fetch PreKeyBundle & Initialize Session
-    initSession();
-
-    return () => {
-      unsubscribe();
-      webSocketService.disconnect();
-    };
-  }, [uuid]);
-
   const initSession = async () => {
+    let bundle;
     if (!user.keys) {
-      console.error("No local keys found. Please re-register.");
-      return;
+      console.error("No local keys found. Fetching from server...");
+      const res = await api
+        .get("/v1/signal/prekey-bundle/" + user.username, {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        })
+        .catch((err) => {
+          console.error("Failed to fetch PreKeyBundle:", err);
+        });
+      bundle = await res.data;
+    } else {
+      console.log({ keys: user.keys });
+      bundle = user.keys;
+      const res = await api
+        .get("/v1/signal/prekey-bundle/" + user.username, {
+          headers: { Authorization: `Bearer ${user.accessToken}` },
+        })
+        .catch((err) => {
+          console.error("Failed to fetch PreKeyBundle:", err);
+        });
+      console.log({ data: res.data });
     }
 
     try {
-      const res = await fetch(
-        `http://localhost:8080/api/v1/signal/prekey-bundle/${uuid}`,
-        {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        }
-      );
-      if (!res.ok) throw new Error("Failed to fetch bundle");
-      const bundle = await res.json();
       await signalService.startSession(uuid, bundle);
       setSessionReady(true);
 
@@ -93,6 +89,33 @@ export default function ChatWindow() {
       }
     }
   };
+
+  useEffect(() => {
+    dispatch(setActiveConversation(uuid));
+
+    // Connect WebSocket
+    webSocketService.connect(user.username);
+    const unsubscribe = webSocketService.subscribe(handleIncomingMessage);
+
+    try {
+      // Fetch PreKeyBundle & Initialize Session
+      initSession()
+        .then(() => {
+          console.log("Session initialized, ready to send/receive messages.");
+        })
+        .catch((err) => {
+          console.error("Failed to initialize session:", err);
+          throw err;
+        });
+    } catch {
+      return;
+    }
+
+    return () => {
+      unsubscribe();
+      webSocketService.disconnect();
+    };
+  }, [uuid]);
 
   const sendMessage = async () => {
     if (!text.trim() || !sessionReady) return;
@@ -203,7 +226,7 @@ export default function ChatWindow() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Type a secure message..."
-          onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+          onKeyUp={(e) => e.key === "Enter" && sendMessage()}
           disabled={!sessionReady}
         />
         <button
