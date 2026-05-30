@@ -42,14 +42,6 @@ export default function ChatWindow() {
     } else {
       console.log({ keys: user.keys });
       bundle = user.keys;
-      const res = await api
-        .get("/v1/signal/prekey-bundle/" + user.username, {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        })
-        .catch((err) => {
-          console.error("Failed to fetch PreKeyBundle:", err);
-        });
-      console.log({ data: res.data });
     }
 
     try {
