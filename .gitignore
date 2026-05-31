@@ -35,3 +35,4 @@ build/
 .env
 
 mongodb-data/**
+mongo-data/**

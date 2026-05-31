@@ -1,0 +1,11 @@
+meta {
+  name: Get Conversation Messages prod
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{prodUrl}}/v1/conversations/{{conversationId}}/messages
+  body: none
+  auth: inherit
+}
