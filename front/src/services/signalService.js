@@ -115,27 +115,11 @@ class SignalService {
             ? this.base64ToArrayBuffer(localKeys.signedPreKey.keyPair.privKey)
             : localKeys.signedPreKey.keyPair.privKey;
 
-        console.log("[initStore] Stored signedPreKey:", {
-          keyId: localKeys.signedPreKey.keyId,
-          pubKey: localKeys.signedPreKey.keyPair.pubKey,
-        });
-        console.log(
-          "[initStore] Stored preKeys:",
-          localKeys.preKeys.map((pk) => ({
-            keyId: pk.keyId,
-            pubKey: pk.keyPair.pubKey,
-          }))
-        );
         this.store.storeSignedPreKey(localKeys.signedPreKey.keyId, {
           pubKey,
           privKey,
         });
       }
-      console.log("Bob store loaded", {
-        identityPub: localKeys.identityKeyPair.pubKey,
-        signedPreKeyId: localKeys.signedPreKey.keyId,
-        preKeyIds: localKeys.preKeys.map((pk) => pk.keyId),
-      });
     }
   }
 
@@ -160,12 +144,6 @@ class SignalService {
         : undefined,
       registrationId: 1,
     };
-
-    console.log("[startSession] Building session with:", {
-      identityKey: bundle.identityKey, // doit être une string Base64
-      signedPreKeyId: deviceBundle.signedPreKey.keyId,
-      preKeyId: deviceBundle.preKey?.keyId,
-    });
 
     await sessionBuilder.processPreKey(deviceBundle);
   }

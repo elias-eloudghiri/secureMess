@@ -12,13 +12,21 @@ export const fetchConversations = createAsyncThunk(
 export const fetchMessages = createAsyncThunk(
   "chat/fetchMessages",
   async (conversationId) => {
-    const response = await api.get(
-      `/v1/conversations/${conversationId}/messages`
-    );
-    return {
-      conversationId,
-      messages: response.data,
-    };
+    try {
+      console.log("Fetching messages for conversation", { conversationId });
+      const response = await api.get(
+        `/v1/conversations/${conversationId}/messages`
+      );
+      return {
+        conversationId,
+        messages: response.data,
+      };
+    } catch (error) {
+      console.error("Failed to fetch messages for conversation", {
+        conversationId,
+        error,
+      });
+    }
   }
 );
 
@@ -49,12 +57,21 @@ export const chatSlice = createSlice({
     },
     addMessageToConversation: (state, action) => {
       const { conversationId, message } = action.payload;
+      console.log("Adding message to conversation", {
+        conversationId,
+        message,
+      });
 
       if (!state.messagesByConversationId[conversationId]) {
         state.messagesByConversationId[conversationId] = [];
       }
-
+      console.log("Current messages for conversation before push", {
+        messages: state.messagesByConversationId[conversationId],
+      });
       state.messagesByConversationId[conversationId].push(message);
+      console.log("Current messages for conversation after push", {
+        messages: state.messagesByConversationId[conversationId],
+      });
     },
 
     updateMessageStatus: (state, action) => {

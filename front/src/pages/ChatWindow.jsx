@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addMessageToConversation,
+  fetchMessages,
   setActiveConversation,
   updateMessageStatus,
 } from "../store/chatSlice";
@@ -29,8 +30,6 @@ export default function ChatWindow() {
   const [sessionInitialized, setSessionInitialized] = useState(false);
 
   const initSession = async () => {
-    if (sessionInitialized) return;
-    setSessionInitialized(true);
     if (!user.keys) {
       console.error("No local keys found. Cannot establish E2E session.");
       return;
@@ -39,10 +38,8 @@ export default function ChatWindow() {
     try {
       const res = await api.get("/v1/signal/prekey-bundle/" + uuid);
       const bundle = res.data;
-      console.log("[initSession] raw bundle:", JSON.stringify(bundle));
 
       await signalService.startSession(uuid, bundle);
-      setSessionReady(true);
       console.log("Session initialized, ready to send/receive messages.");
     } catch (err) {
       console.error("Failed to initialize session:", err);
@@ -50,6 +47,7 @@ export default function ChatWindow() {
   };
 
   const handleIncomingMessage = async (data) => {
+    console.log("[ChatWindow] Received WS message");
     if (data.type === "NEW_MESSAGE") {
       const msg = data.message;
       if (msg.senderId === uuid) {
@@ -58,6 +56,7 @@ export default function ChatWindow() {
             uuid,
             msg.encryptedContent
           );
+          console.log("Message decrypted successfully:", { decrypted });
           dispatch(
             addMessageToConversation({
               conversationId: msg.conversationId,
@@ -70,6 +69,7 @@ export default function ChatWindow() {
               },
             })
           );
+          console.log("Total messages :", { messages });
         } catch (err) {
           console.error("Failed to decrypt message:", err);
         }
@@ -77,6 +77,16 @@ export default function ChatWindow() {
     }
   };
 
+  const loadMessages = async () => {
+    try {
+      const result = await dispatch(
+        fetchMessages(activeConversationId)
+      ).unwrap();
+      console.log("Messages chargés:", result);
+    } catch (err) {
+      console.error("Erreur fetchMessages:", err);
+    }
+  };
   useEffect(() => {
     dispatch(setActiveConversation(uuid));
 
@@ -86,14 +96,13 @@ export default function ChatWindow() {
 
     try {
       // Fetch PreKeyBundle & Initialize Session
-      initSession()
-        .then(() => {
-          console.log("Session initialized, ready to send/receive messages.");
-        })
-        .catch((err) => {
-          console.error("Failed to initialize session:", err);
-          throw err;
+      if (sessionInitialized === false) {
+        initSession().then(() => {
+          setSessionInitialized(true);
+          setSessionReady(true);
         });
+        loadMessages().then(() => {});
+      }
     } catch {
       return;
     }

@@ -37,7 +37,7 @@ public class SignalController {
       // Pop the first key (in a real app, remove it from DB and save User)
       User.PreKeyRecord randomKey = user.getOneTimePreKeys().getFirst();
       user.getOneTimePreKeys().removeFirst();
-      userRepository.save(user);
+      // userRepository.save(user);
 
       PreKeyBundleResponse.PreKeyResponse pbKey = new PreKeyBundleResponse.PreKeyResponse();
       pbKey.setKeyId(randomKey.getKeyId());

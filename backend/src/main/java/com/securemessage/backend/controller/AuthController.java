@@ -9,7 +9,9 @@ import com.securemessage.backend.service.UserService;
 import jakarta.validation.Valid;
 import java.util.Base64;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
   private final UserService userService;
@@ -30,6 +33,17 @@ public class AuthController {
     byte[] signedPreKey = Base64.getDecoder().decode(request.signedPreKey());
     byte[] signedPreKeySignature = Base64.getDecoder().decode(request.signedPreKeySignature());
 
+    log.info("Prekeys from request: {}", request.oneTimePreKeys().size());
+    log.info(
+        "PreKeys from request content: {}",
+        request.oneTimePreKeys().stream()
+            .map(
+                pk ->
+                    "keyId="
+                        + pk.keyId()
+                        + " pubKey="
+                        + Base64.getEncoder().encodeToString(pk.publicKey().getBytes()))
+            .collect(Collectors.joining(", ")));
     List<User.PreKeyRecord> preKeys =
         request.oneTimePreKeys().stream()
             .map(
@@ -40,6 +54,17 @@ public class AuthController {
                   return record;
                 })
             .toList();
+    log.info("PreKeys count: {}", preKeys.size());
+    log.info(
+        "PreKeys content: {}",
+        preKeys.stream()
+            .map(
+                pk ->
+                    "keyId="
+                        + pk.getKeyId()
+                        + " pubKey="
+                        + Base64.getEncoder().encodeToString(pk.getPublicKey()))
+            .collect(Collectors.joining(", ")));
     User user =
         userService.registerAnonymousUser(
             request.password(),
