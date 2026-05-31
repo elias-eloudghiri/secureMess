@@ -8,4 +8,6 @@ public interface MessageRepository extends MongoRepository<Message, String> {
   List<Message> findByReceiverIdAndDeliveredFalse(String receiverId);
 
   List<Message> findByConversationIdOrderByTimestampAsc(String conversationId);
+
+  List<Message> findByConversationId(String conversationId);
 }

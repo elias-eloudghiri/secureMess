@@ -137,12 +137,14 @@ export default function ChatWindow() {
     try {
       const encrypted = await signalService.encryptMessage(uuid, messageText);
 
-      webSocketService.sendMessage({
+      let sendMessagePayload = {
         senderId: user.username,
         receiverId: uuid,
         encryptedContent: encrypted,
         conversationId: activeConversationId, // Temporary front key until routes use real conversation ids
-      });
+      };
+      console.log({ sendMessagePayload });
+      webSocketService.sendMessage(sendMessagePayload);
       dispatch(
         updateMessageStatus({
           conversationId: activeConversationId,

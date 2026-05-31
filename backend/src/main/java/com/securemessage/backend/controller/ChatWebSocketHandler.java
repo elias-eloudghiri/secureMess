@@ -3,6 +3,7 @@ package com.securemessage.backend.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.securemessage.backend.model.Message;
 import com.securemessage.backend.repository.MessageRepository;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.NonNull;
@@ -54,7 +55,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
       msg.setReceiverId(receiverId);
       msg.setEncryptedContent(encryptedContent);
       msg.setConversationId(conversationId);
-      msg.setTimestamp(new java.util.Date());
+      msg.setTimestamp(new Date());
       messageRepository.save(msg);
 
       // Relay to recipient if online

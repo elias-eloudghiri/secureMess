@@ -42,7 +42,12 @@ public class ConversationService {
           ErrorCode.USER_NOT_FOUND_IN_PARTICIPANTS,
           "User with uuid " + user.getUuid() + " is not a participant of this conversation");
     }
-    return messageRepository.findByConversationIdOrderByTimestampAsc(conversationId);
+    List<Message> messages =
+        messageRepository.findByConversationIdOrderByTimestampAsc(conversationId);
+    List<Message> messages2 = messageRepository.findByConversationId(conversationId);
+    log.info("Found {} messages for conversation {}", messages.size(), conversationId);
+
+    return messages;
   }
 
   public Conversation createConversation(User user, List<String> participants) {
