@@ -45,6 +45,12 @@ public class SignalController {
       response.setPreKey(pbKey);
     }
 
+    log.info(
+        "[getPreKeyBundle] Returning bundle for {}: identityKey={}, signedPreKeyId={}, preKeyId={}",
+        uuid,
+        response.getIdentityKey(),
+        response.getSignedPreKeyId(),
+        response.getPreKey() != null ? response.getPreKey().getKeyId() : "null");
     return ResponseEntity.ok(response);
   }
 }

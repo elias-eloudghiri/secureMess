@@ -31,14 +31,23 @@ export default function ChatWindow() {
     let bundle;
     if (!user.keys) {
       console.error("No local keys found. Fetching from server...");
+      console.log(
+        "[initSession] user.username:",
+        user.username,
+        "| target uuid:",
+        uuid
+      );
       const res = await api
-        .get("/v1/signal/prekey-bundle/" + user.username, {
+        .get("/v1/signal/prekey-bundle/" + uuid, {
           headers: { Authorization: `Bearer ${user.accessToken}` },
         })
         .catch((err) => {
           console.error("Failed to fetch PreKeyBundle:", err);
         });
+      console.log("[initSession] raw bundle:", JSON.stringify(res.data));
+
       bundle = await res.data;
+      console.log("Raw bundle JSON:", JSON.stringify(bundle));
     } else {
       console.log({ keys: user.keys });
       bundle = user.keys;
@@ -46,9 +55,7 @@ export default function ChatWindow() {
 
     try {
       console.log("Bundle fetched for", uuid, {
-        identityKey: bundle.identityKey,
-        signedPreKeyId: bundle.signedPreKeyId,
-        preKeyId: bundle.preKey?.keyId,
+        bundle: bundle,
       });
       await signalService.startSession(uuid, bundle);
       setSessionReady(true);
@@ -56,7 +63,7 @@ export default function ChatWindow() {
       // Load previous messages (would need decryption logic here for full history support)
       // For RNCP demo, we just focus on real-time messages.
     } catch (err) {
-      console.error(err);
+      console.error("Failed to initialize session:", err);
     }
   };
 

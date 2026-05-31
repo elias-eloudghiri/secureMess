@@ -35,7 +35,14 @@ export default function Conversations() {
           console.log("Error while creating the conversation occurred : ", err)
         )
         .then((response) => {
-          if (response.status === 200) navigate(`/chat/${newChatUuid.trim()}`);
+          if (response.status === 200) {
+            let newChatUuidTrimed = newChatUuid.trim();
+            console.log(
+              "Conversation created successfully with UUID: ",
+              newChatUuidTrimed
+            );
+            navigate(`/chat/${newChatUuidTrimed}`);
+          }
         });
     }
   };
