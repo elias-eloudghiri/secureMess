@@ -4,6 +4,7 @@ import com.securemessage.backend.exception.ErrorCode;
 import com.securemessage.backend.exception.UserException;
 import com.securemessage.backend.model.User;
 import com.securemessage.backend.repository.UserRepository;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,8 @@ public class UserService {
       byte[] identityKey,
       byte[] signedPreKey,
       int signedPreKeyId,
-      byte[] signedPreKeySignature) {
+      byte[] signedPreKeySignature,
+      List<User.PreKeyRecord> oneTimePreKeys) {
     log.info("Registering new anonymous user with signedPreKeyId: {}", signedPreKeyId);
     User user = new User();
     user.setUuid(UUID.randomUUID().toString());
@@ -32,6 +34,7 @@ public class UserService {
     user.setSignedPreKey(signedPreKey);
     user.setSignedPreKeyId(signedPreKeyId);
     user.setSignedPreKeySignature(signedPreKeySignature);
+    user.setOneTimePreKeys(oneTimePreKeys);
 
     User savedUser = userRepository.save(user);
     log.info("Anonymous user registered successfully. Username: {}", savedUser.getUuid());

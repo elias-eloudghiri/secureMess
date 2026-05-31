@@ -140,32 +140,17 @@ class SignalService {
   }
 
   async startSession(recipientUUID, bundle) {
-    const { SignalProtocolAddress, SessionBuilder } = await import(
-      "@privacyresearch/libsignal-protocol-typescript"
-    );
+    const { SignalProtocolAddress, SessionBuilder } =
+      await import("@privacyresearch/libsignal-protocol-typescript");
     const address = new SignalProtocolAddress(recipientUUID, 1);
     const sessionBuilder = new SessionBuilder(this.store, address);
 
-    const pubKey = this.base64ToArrayBuffer(bundle.identityKeyPair.pubKey); // bundle recup depuis le localStorage (après inscription)
-
-    const signedPreKeyId = bundle.signedPreKeyId
-      ? bundle.signedPreKeyId
-      : bundle.signedPreKey.keyId;
-
-    const signedPreKeyPub = this.base64ToArrayBuffer(
-      bundle.signedPreKey.keyPair.pubKey
-    ); // bundle recup depuis le localStorage (après inscription)
-
-    const signedPreKeySignature = this.base64ToArrayBuffer(
-      bundle.signedPreKey.signature
-    ); // bundle recup depuis le localStorage (après inscription)
-
     const deviceBundle = {
-      identityKey: pubKey,
+      identityKey: this.base64ToArrayBuffer(bundle.identityKey),
       signedPreKey: {
-        keyId: signedPreKeyId,
-        publicKey: signedPreKeyPub,
-        signature: signedPreKeySignature,
+        keyId: bundle.signedPreKeyId,
+        publicKey: this.base64ToArrayBuffer(bundle.signedPreKey),
+        signature: this.base64ToArrayBuffer(bundle.signedPreKeySignature),
       },
       preKey: bundle.preKey
         ? {
@@ -176,28 +161,18 @@ class SignalService {
       registrationId: 1,
     };
 
-    console.log("[startSession] Starting session with bundle ", { bundle });
     console.log("[startSession] Building session with:", {
-      identityKey: bundle.identityKey,
+      identityKey: bundle.identityKey, // doit être une string Base64
       signedPreKeyId: deviceBundle.signedPreKey.keyId,
-      signedPreKeyPub: this.arrayBufferToBase64(
-        deviceBundle.signedPreKey.publicKey
-      ),
-      signedPreKeySig: this.arrayBufferToBase64(
-        deviceBundle.signedPreKey.signature
-      ),
       preKeyId: deviceBundle.preKey?.keyId,
-      preKeyPub: deviceBundle.preKey
-        ? this.arrayBufferToBase64(deviceBundle.preKey.publicKey)
-        : null,
     });
+
     await sessionBuilder.processPreKey(deviceBundle);
   }
 
   async encryptMessage(recipientUUID, plaintext) {
-    const { SignalProtocolAddress, SessionCipher } = await import(
-      "@privacyresearch/libsignal-protocol-typescript"
-    );
+    const { SignalProtocolAddress, SessionCipher } =
+      await import("@privacyresearch/libsignal-protocol-typescript");
     const address = new SignalProtocolAddress(recipientUUID, 1);
     const sessionCipher = new SessionCipher(this.store, address);
 
@@ -213,9 +188,8 @@ class SignalService {
   }
 
   async decryptMessage(senderUUID, ciphertextStr) {
-    const { SignalProtocolAddress, SessionCipher } = await import(
-      "@privacyresearch/libsignal-protocol-typescript"
-    );
+    const { SignalProtocolAddress, SessionCipher } =
+      await import("@privacyresearch/libsignal-protocol-typescript");
     const address = new SignalProtocolAddress(senderUUID, 1);
     const sessionCipher = new SessionCipher(this.store, address);
 

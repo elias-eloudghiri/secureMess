@@ -8,6 +8,7 @@ import com.securemessage.backend.service.JwtService;
 import com.securemessage.backend.service.UserService;
 import jakarta.validation.Valid;
 import java.util.Base64;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,13 +30,24 @@ public class AuthController {
     byte[] signedPreKey = Base64.getDecoder().decode(request.signedPreKey());
     byte[] signedPreKeySignature = Base64.getDecoder().decode(request.signedPreKeySignature());
 
+    List<User.PreKeyRecord> preKeys =
+        request.oneTimePreKeys().stream()
+            .map(
+                pk -> {
+                  User.PreKeyRecord record = new User.PreKeyRecord();
+                  record.setKeyId(pk.keyId());
+                  record.setPublicKey(Base64.getDecoder().decode(pk.publicKey()));
+                  return record;
+                })
+            .toList();
     User user =
         userService.registerAnonymousUser(
             request.password(),
             identityKey,
             signedPreKey,
             request.signedPreKeyId(),
-            signedPreKeySignature);
+            signedPreKeySignature,
+            preKeys);
 
     String accessToken = jwtService.generateAccessToken(user.getUuid());
     String refreshToken = jwtService.generateRefreshToken(user.getUuid());

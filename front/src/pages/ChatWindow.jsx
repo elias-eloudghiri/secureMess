@@ -26,42 +26,24 @@ export default function ChatWindow() {
 
   const [text, setText] = useState("");
   const [sessionReady, setSessionReady] = useState(false);
+  const [sessionInitialized, setSessionInitialized] = useState(false);
 
   const initSession = async () => {
-    let bundle;
+    if (sessionInitialized) return;
+    setSessionInitialized(true);
     if (!user.keys) {
-      console.error("No local keys found. Fetching from server...");
-      console.log(
-        "[initSession] user.username:",
-        user.username,
-        "| target uuid:",
-        uuid
-      );
-      const res = await api
-        .get("/v1/signal/prekey-bundle/" + uuid, {
-          headers: { Authorization: `Bearer ${user.accessToken}` },
-        })
-        .catch((err) => {
-          console.error("Failed to fetch PreKeyBundle:", err);
-        });
-      console.log("[initSession] raw bundle:", JSON.stringify(res.data));
-
-      bundle = await res.data;
-      console.log("Raw bundle JSON:", JSON.stringify(bundle));
-    } else {
-      console.log({ keys: user.keys });
-      bundle = user.keys;
+      console.error("No local keys found. Cannot establish E2E session.");
+      return;
     }
 
     try {
-      console.log("Bundle fetched for", uuid, {
-        bundle: bundle,
-      });
+      const res = await api.get("/v1/signal/prekey-bundle/" + uuid);
+      const bundle = res.data;
+      console.log("[initSession] raw bundle:", JSON.stringify(bundle));
+
       await signalService.startSession(uuid, bundle);
       setSessionReady(true);
-
-      // Load previous messages (would need decryption logic here for full history support)
-      // For RNCP demo, we just focus on real-time messages.
+      console.log("Session initialized, ready to send/receive messages.");
     } catch (err) {
       console.error("Failed to initialize session:", err);
     }
