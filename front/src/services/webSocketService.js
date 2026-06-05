@@ -8,13 +8,9 @@ class WebSocketService {
     if (this.socket) {
       return;
     }
+    const BASE_URL = import.meta.env.VITE_WS_URL;
     // Using simple ws/wss protocol for Spring TextWebSocketHandler
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const host =
-      window.location.hostname === "localhost"
-        ? "localhost:8080"
-        : window.location.host;
-    const wsUrl = `${protocol}//${host}/ws/chat`;
+    const wsUrl = BASE_URL + "/chat";
 
     this.socket = new WebSocket(wsUrl);
 
