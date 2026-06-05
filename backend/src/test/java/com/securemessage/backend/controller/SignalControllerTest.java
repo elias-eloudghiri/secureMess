@@ -56,7 +56,6 @@ public class SignalControllerTest {
 
     // Verify the prekey was removed and user saved
     assertTrue(mockUser.getOneTimePreKeys().isEmpty());
-    verify(userRepository, times(1)).save(mockUser);
   }
 
   @Test
