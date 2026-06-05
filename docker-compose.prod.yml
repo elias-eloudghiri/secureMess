@@ -33,6 +33,8 @@ services:
   frontend:
     build: ./front
     container_name: securemessage-frontend-prod
+    env_file:
+      - ./front/.env
     ports:
       - "80:80"
     depends_on:
