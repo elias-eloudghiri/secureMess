@@ -36,3 +36,4 @@ build/
 
 mongodb-data/**
 mongo-data/**
+mongodb-data-prod/**
