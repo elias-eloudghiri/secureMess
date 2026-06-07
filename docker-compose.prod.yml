@@ -31,7 +31,11 @@ services:
       - secure-network
 
   frontend:
-    build: ./front
+    build:
+      context: ./front
+      args:
+        - VITE_BACKEND_URL=${VITE_BACKEND_URL}
+        - VITE_WS_URL=${VITE_WS_URL}
     container_name: securemessage-frontend-prod
     env_file:
       - .env
