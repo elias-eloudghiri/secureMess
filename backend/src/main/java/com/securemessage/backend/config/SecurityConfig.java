@@ -3,17 +3,20 @@ package com.securemessage.backend.config;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -40,6 +43,10 @@ public class SecurityConfig {
                 exception
                     .authenticationEntryPoint(
                         (request, response, authException) -> {
+                          log.error(
+                              "Unauthorized access attempt: {}",
+                              authException.getMessage(),
+                              authException);
                           response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                           response.setContentType("application/json;charset=UTF-8");
                           response
@@ -76,7 +83,9 @@ public class SecurityConfig {
                     .authenticated())
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
         .httpBasic(AbstractHttpConfigurer::disable) // Simplify for now
-        .formLogin(AbstractHttpConfigurer::disable);
+        .formLogin(AbstractHttpConfigurer::disable)
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
     return http.build();
   }
