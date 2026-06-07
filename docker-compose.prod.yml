@@ -34,7 +34,7 @@ services:
     build: ./front
     container_name: securemessage-frontend-prod
     env_file:
-      - ./front/.env
+      - .env
     ports:
       - "443:443"
     depends_on:

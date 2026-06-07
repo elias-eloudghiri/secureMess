@@ -101,7 +101,7 @@ export default function ChatWindow() {
           setSessionInitialized(true);
           setSessionReady(true);
         });
-        loadMessages().then(() => {});
+        //loadMessages().then(() => {});
       }
     } catch {
       return;
