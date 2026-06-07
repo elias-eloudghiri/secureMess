@@ -41,6 +41,8 @@ services:
       - backend
     networks:
       - secure-network
+    volumes:
+      - /var/www/secure-mess.fr/html/:/usr/share/nginx/html:ro
 
 volumes:
   mongo-data-prod:
