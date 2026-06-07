@@ -42,7 +42,6 @@ services:
     networks:
       - secure-network
     volumes:
-      - /var/www/secure-mess.fr/html/:/usr/share/nginx/html:ro
       - /etc/nginx/sites-available/secure-mess.fr:/etc/nginx/conf.d/default.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
 
