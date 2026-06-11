@@ -1,0 +1,19 @@
+meta {
+  name: WebSockt messages prod
+  type: ws
+  seq: 3
+}
+
+ws {
+  url: wss://secure-mess.fr/
+  body: ws
+  auth: none
+}
+
+body:ws {
+  name: message 1
+  type: json
+  content: '''
+    {}
+  '''
+}

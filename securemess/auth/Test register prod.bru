@@ -1,0 +1,65 @@
+meta {
+  name: Test register prod
+  type: http
+  seq: 5
+}
+
+post {
+  url: https://secure-mess.fr/api/auth/register
+  body: json
+  auth: inherit
+}
+
+headers {
+  Connection: keep-alive
+  Cookie: JSESSIONID=7ED145E06C1B7D03D2CA5817E5E24437
+  Origin: https://secure-mess.fr
+  Referer: https://secure-mess.fr/register
+  Sec-Fetch-Dest: empty
+  Sec-Fetch-Mode: cors
+  Sec-Fetch-Site: same-origin
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36
+  accept: */*
+  accept-language: fr-FR,fr;q=0.9
+  content-type: application/json
+  sec-ch-ua: "Chromium";v="148", "Google Chrome";v="148", "Not/A)Brand";v="99"
+  sec-ch-ua-mobile: ?0
+  sec-ch-ua-platform: "Windows"
+}
+
+body:json {
+  {
+    "password": "123456789",
+    "identityKey": "BZEePpmq+hkoYdpLUZtdk5+OhIYo/Aw799QV8rbFtjR/",
+    "signedPreKey": "BavBnLjMXW0gg8GhtPuhASNFyEjcDB4KpzvAz3ssBSov",
+    "signedPreKeyId": 1,
+    "signedPreKeySignature": "ShzvyYLMPS8eXgs+UH/lSdD5x/1hKDnzrK43pzZR5GKuge+Mwo/lERyfaYDDEr5FZ4eGVYSedhFHfqFngzH1hQ==",
+    "oneTimePreKeys": [
+      {
+        "keyId": 0,
+        "publicKey": "BSj+ylnAqIZhFBGyrpbbe2ATP5ZT/8/xNCLha7us3oVc"
+      },
+      {
+        "keyId": 1,
+        "publicKey": "BVZP8cFJgegqA5zLxG7UwozWcz44/6EQ+1hifhVnBI5Z"
+      },
+      {
+        "keyId": 2,
+        "publicKey": "BQNDeVar/rzCAqr4B2/TZwiA9NoS5JcjVDccfzyAg3Ed"
+      },
+      {
+        "keyId": 3,
+        "publicKey": "BTRySBRfj6bNSLkhI9BDmF2okZH54YhKW29ssnTa2Fw+"
+      },
+      {
+        "keyId": 4,
+        "publicKey": "BRfbfBc+f7E2fv8sBRA96siUoD+oGsKEKprPFI7vINdp"
+      }
+    ]
+  }
+}
+
+settings {
+  encodeUrl: false
+  timeout: 0
+}
