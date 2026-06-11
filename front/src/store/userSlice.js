@@ -2,15 +2,14 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const getInitialState = () => {
   try {
-    const keysStr = localStorage.getItem("keys");
     return {
       username: localStorage.getItem("username") || null,
       isAuthenticated: !!localStorage.getItem("accessToken"),
-      keys: keysStr ? JSON.parse(keysStr) : null,
       accessToken: localStorage.getItem("accessToken") || null,
       refreshToken: localStorage.getItem("refreshToken") || null,
     };
   } catch (e) {
+    console.log("Error during credentials retrieve : ", { e });
     return {
       username: null,
       isAuthenticated: false,
@@ -29,7 +28,6 @@ export const userSlice = createSlice({
   reducers: {
     setAuthenticatedUser: (state, action) => {
       state.username = action.payload.username;
-      state.keys = action.payload.keys;
       state.accessToken = action.payload.accessToken;
       state.refreshToken = action.payload.refreshToken;
       state.isAuthenticated = true;
@@ -39,9 +37,6 @@ export const userSlice = createSlice({
       localStorage.setItem("accessToken", action.payload.accessToken);
       if (action.payload.refreshToken) {
         localStorage.setItem("refreshToken", action.payload.refreshToken);
-      }
-      if (action.payload.keys) {
-        localStorage.setItem("keys", JSON.stringify(action.payload.keys));
       }
     },
     updateAccessToken: (state, action) => {
@@ -59,7 +54,6 @@ export const userSlice = createSlice({
       localStorage.removeItem("username");
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
-      localStorage.removeItem("keys");
     },
   },
 });

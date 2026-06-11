@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { setAuthenticatedUser } from "../store/userSlice";
 import api from "../api";
 import "./Auth.css";
+import { loadEncryptedKeys } from "../services/secureStorage";
 
 const Login = () => {
   const [uuid, setUuid] = useState("");
@@ -28,18 +29,17 @@ const Login = () => {
       const { uuid: returningUuid, accessToken, refreshToken } = response.data;
       if (accessToken) {
         // Retrieve existing keys if they exist in this browser
-        const existingKeysStr = localStorage.getItem("keys");
-        const existingKeys = existingKeysStr
-          ? JSON.parse(existingKeysStr)
-          : null;
-        if (existingKeys == null) {
+        const keys = await loadEncryptedKeys(password);
+
+        if (keys == null) {
           console.log("No existing keys found in localStorage for this user");
+          throw new Error("No keys found in db matching user credentials");
         }
 
         dispatch(
           setAuthenticatedUser({
             username: returningUuid,
-            keys: existingKeys,
+            keys: keys,
             accessToken,
             refreshToken,
           })

@@ -12,6 +12,7 @@ import webSocketService from "../services/webSocketService";
 
 import "./ChatWindow.css";
 import api from "../api/index.js";
+import { saveMessage } from "../services/secureStorage";
 
 export default function ChatWindow() {
   const { uuid } = useParams(); // Recipient UUID
@@ -29,6 +30,20 @@ export default function ChatWindow() {
   const [sessionReady, setSessionReady] = useState(false);
   const [sessionInitialized, setSessionInitialized] = useState(false);
 
+  const loadLocalMessages = async () => {
+    const local = await loadMessages(activeConversationId);
+    if (local.length > 0) {
+      // Hydrate Redux avec les messages locaux immédiatement
+      local.forEach((msg) => {
+        dispatch(
+          addMessageToConversation({
+            conversationId: activeConversationId,
+            message: msg,
+          })
+        );
+      });
+    }
+  };
   const initSession = async () => {
     if (!user.keys) {
       console.error("No local keys found. Cannot establish E2E session.");
@@ -57,16 +72,20 @@ export default function ChatWindow() {
             msg.encryptedContent
           );
           console.log("Message decrypted successfully:", { decrypted });
+          const messageToStore = {
+            id: msg.id,
+            conversationId: msg.conversationId,
+            senderId: msg.senderId,
+            text: decrypted,
+            timestamp: msg.timestamp,
+            status: "received",
+          };
+
+          await saveMessage(messageToStore);
           dispatch(
             addMessageToConversation({
               conversationId: msg.conversationId,
-              message: {
-                id: msg.id,
-                senderId: msg.senderId,
-                text: decrypted,
-                timestamp: msg.timestamp,
-                status: "received",
-              },
+              message: messageToStore,
             })
           );
           console.log("Total messages :", { messages });
@@ -100,6 +119,9 @@ export default function ChatWindow() {
         initSession().then(() => {
           setSessionInitialized(true);
           setSessionReady(true);
+          loadLocalMessages().then(() => {
+            console.log("Messages loaded successfully");
+          });
         });
         //loadMessages().then(() => {});
       }
@@ -119,6 +141,14 @@ export default function ChatWindow() {
     const temporaryId = `temp-${Date.now()}`;
     const messageText = text;
 
+    await saveMessage({
+      id: temporaryId,
+      conversationId: activeConversationId,
+      senderId: user.username,
+      text: messageText,
+      timestamp: new Date().toISOString(),
+      status: "sending",
+    });
     dispatch(
       addMessageToConversation({
         conversationId: activeConversationId,

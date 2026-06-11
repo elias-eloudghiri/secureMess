@@ -1,4 +1,5 @@
 import { KeyHelper } from "@privacyresearch/libsignal-protocol-typescript";
+import { getAllSessionKeys, loadSession } from "./secureStorage.js";
 
 class SignalService {
   constructor() {
@@ -73,7 +74,7 @@ class SignalService {
 
   // --- Epic 2 Methods --- //
 
-  initStore(store, localKeys) {
+  async initStore(store, localKeys) {
     this.store = store;
     if (localKeys && localKeys.identityKeyPair) {
       const pubKey =
@@ -121,11 +122,18 @@ class SignalService {
         });
       }
     }
+    const sessionKeys = await getAllSessionKeys();
+    await Promise.all(
+      sessionKeys.map(async (key) => {
+        store.store.sessions[key] = await loadSession(key);
+      })
+    );
   }
 
   async startSession(recipientUUID, bundle) {
-    const { SignalProtocolAddress, SessionBuilder } =
-      await import("@privacyresearch/libsignal-protocol-typescript");
+    const { SignalProtocolAddress, SessionBuilder } = await import(
+      "@privacyresearch/libsignal-protocol-typescript"
+    );
     const address = new SignalProtocolAddress(recipientUUID, 1);
     const sessionBuilder = new SessionBuilder(this.store, address);
 
@@ -149,8 +157,9 @@ class SignalService {
   }
 
   async encryptMessage(recipientUUID, plaintext) {
-    const { SignalProtocolAddress, SessionCipher } =
-      await import("@privacyresearch/libsignal-protocol-typescript");
+    const { SignalProtocolAddress, SessionCipher } = await import(
+      "@privacyresearch/libsignal-protocol-typescript"
+    );
     const address = new SignalProtocolAddress(recipientUUID, 1);
     const sessionCipher = new SessionCipher(this.store, address);
 
@@ -166,8 +175,9 @@ class SignalService {
   }
 
   async decryptMessage(senderUUID, ciphertextStr) {
-    const { SignalProtocolAddress, SessionCipher } =
-      await import("@privacyresearch/libsignal-protocol-typescript");
+    const { SignalProtocolAddress, SessionCipher } = await import(
+      "@privacyresearch/libsignal-protocol-typescript"
+    );
     const address = new SignalProtocolAddress(senderUUID, 1);
     const sessionCipher = new SessionCipher(this.store, address);
 

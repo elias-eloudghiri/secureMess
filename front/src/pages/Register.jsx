@@ -5,6 +5,7 @@ import { setAuthenticatedUser } from "../store/userSlice";
 import signalService from "../services/signalService";
 import api from "../api";
 import "./Auth.css";
+import { saveEncryptedKeys } from "../services/secureStorage";
 
 const Register = () => {
   const [password, setPassword] = useState("");
@@ -57,7 +58,7 @@ const Register = () => {
 
       // 4. Store state locally to display, don't dispatch immediately
       setGeneratedUuid(uuid);
-      setGeneratedKeys(keys);
+      await saveEncryptedKeys(keys, password);
       setGeneratedTokens({ accessToken, refreshToken });
     } catch (err) {
       console.error(err);

@@ -1,8 +1,8 @@
 import {
   BrowserRouter as Router,
-  Routes,
-  Route,
   Navigate,
+  Route,
+  Routes,
 } from "react-router-dom";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -23,7 +23,12 @@ function App() {
     // so it's ready for both Conversations and ChatWindow views
     if (user.keys) {
       const store = new SignalStore();
-      signalService.initStore(store, user.keys);
+      const init = async () => {
+        signalService.initStore(store, user.keys);
+      };
+      init().then(() => {
+        console.log("Init complete");
+      });
     }
   }, [user.keys]);
 
