@@ -7,26 +7,23 @@ on:
     branches: [ "master", "develop" ]
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_BACKEND: ghcr.io/${{ github.repository_owner }}/securemessage-backend
-  IMAGE_FRONTEND: ghcr.io/${{ github.repository_owner }}/securemessage-frontend
+  REGISTRY: docker.io
+  IMAGE_BACKEND: docker9uriel/securemessage-backend
+  IMAGE_FRONTEND: docker9uriel/securemessage-frontend
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Log in to GHCR
+      - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: docker9uriel
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Extract metadata (backend)
         id: meta-backend
