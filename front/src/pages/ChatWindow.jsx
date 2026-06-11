@@ -16,7 +16,7 @@ import api from "../api/index.js";
 export default function ChatWindow() {
   const { uuid } = useParams(); // Recipient UUID
   const location = useLocation();
-  const activeConversationId = location.state?.conversationId ?? uuid;
+  const activeConversationId = uuid;
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -48,8 +48,10 @@ export default function ChatWindow() {
 
   const handleIncomingMessage = async (data) => {
     console.log("[ChatWindow] Received WS message");
+    console.log({ activeConversationId });
     if (data.type === "NEW_MESSAGE") {
       const msg = data.message;
+      console.log({ msg });
       if (msg.senderId === uuid) {
         try {
           const decrypted = await signalService.decryptMessage(
@@ -59,7 +61,7 @@ export default function ChatWindow() {
           console.log("Message decrypted successfully:", { decrypted });
           dispatch(
             addMessageToConversation({
-              conversationId: msg.conversationId,
+              conversationId: activeConversationId,
               message: {
                 id: msg.id,
                 senderId: msg.senderId,
@@ -114,6 +116,7 @@ export default function ChatWindow() {
   }, [uuid]);
 
   const sendMessage = async () => {
+    console.log({ activeConversationId });
     if (!text.trim() || !sessionReady) return;
 
     const temporaryId = `temp-${Date.now()}`;
