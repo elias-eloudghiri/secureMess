@@ -26,9 +26,14 @@ public class UserService {
       int signedPreKeyId,
       byte[] signedPreKeySignature,
       List<User.PreKeyRecord> oneTimePreKeys) {
-    log.info("Registering new anonymous user with signedPreKeyId: {}", signedPreKeyId);
+    log.info("Registering new anonymous user");
     User user = new User();
     user.setUuid(UUID.randomUUID().toString());
+
+    if (password.length() < 9)
+      throw new UserException(
+          ErrorCode.PASSWORD_MUST_BE_LONGER, ErrorCode.PASSWORD_MUST_BE_LONGER.getDefaultMessage());
+
     user.setPasswordHash(passwordEncoder.encode(password));
     user.setIdentityKey(identityKey);
     user.setSignedPreKey(signedPreKey);
@@ -37,20 +42,21 @@ public class UserService {
     user.setOneTimePreKeys(oneTimePreKeys);
 
     User savedUser = userRepository.save(user);
-    log.info("Anonymous user registered successfully. Username: {}", savedUser.getUuid());
+    log.info("Anonymous user registered successfully");
     return savedUser;
   }
 
-  public User findByUuid(String uuid) {
-    return userRepository.findByUuid(uuid).orElse(null);
+  public User findByUuidOrThrow(String uuid) {
+    User user = userRepository.findByUuid(uuid).orElse(null);
+    if (user == null) {
+      log.warn("User not found for UUID {}", uuid);
+      throw new UserException(ErrorCode.USER_NOT_FOUND);
+    }
+    return user;
   }
 
   public void loginOrThrow(String uuid, String password) {
-    User user = findByUuid(uuid);
-    if (user == null) {
-      log.warn("Login failed: User not found for UUID {}", uuid);
-      throw new UserException(ErrorCode.USER_NOT_FOUND);
-    }
+    User user = findByUuidOrThrow(uuid);
     if (!passwordEncoder.matches(password, user.getPasswordHash())) {
       log.warn("Login failed: User {} the password was incorrect", uuid);
       throw new UserException(ErrorCode.PASSWORD_INCORRECT);

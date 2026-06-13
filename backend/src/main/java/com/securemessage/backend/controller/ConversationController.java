@@ -21,7 +21,7 @@ public class ConversationController {
 
   private User getCurrentUser() {
     String UserUuid = SecurityContextHolder.getContext().getAuthentication().getName();
-    return userService.findByUuid(UserUuid);
+    return userService.findByUuidOrThrow(UserUuid);
   }
 
   @GetMapping("/")

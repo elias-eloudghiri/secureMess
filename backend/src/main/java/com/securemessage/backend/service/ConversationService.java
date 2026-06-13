@@ -60,12 +60,14 @@ public class ConversationService {
           ErrorCode.USER_NOT_FOUND_IN_PARTICIPANTS,
           "User must be a participant in the conversation");
     }
+    if (participants.stream().allMatch(participant -> participant.equals(user.getUuid()))) {
+      log.error("User cannot create a conversation with only themselves: {}", user.getUuid());
+      throw new UserException(
+          ErrorCode.USER_CANNOT_CREATE_CONVERSATION_WITH_HIMSELF,
+          "User cannot create a conversation with only themselves");
+    }
     for (String participantUuid : participants) {
-      if (userService.findByUuid(participantUuid) == null) {
-        log.error("User not found: {}", participantUuid);
-        throw new UserException(
-            ErrorCode.USER_NOT_FOUND, "User with uuid " + participantUuid + " was not found");
-      }
+      userService.findByUuidOrThrow(participantUuid);
     }
     Conversation conversation = new Conversation();
     conversation.setParticipants(participants);

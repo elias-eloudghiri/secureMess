@@ -28,7 +28,7 @@ public class MessageController {
         createMessageDTO.messageContent());
 
     String UserUuid = SecurityContextHolder.getContext().getAuthentication().getName();
-    User user = userService.findByUuid(UserUuid);
+    User user = userService.findByUuidOrThrow(UserUuid);
 
     return ResponseEntity.ok(
         messageService.createMessage(createMessageDTO.messageContent(), conversationId, user));
