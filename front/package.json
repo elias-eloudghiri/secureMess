@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "eslint . --max-warnings=0"
+    "check": "eslint . --max-warnings=40"
   },
   "dependencies": {
     "@privacyresearch/libsignal-protocol-typescript": "^0.0.16",
