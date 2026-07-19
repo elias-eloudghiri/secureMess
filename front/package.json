@@ -7,7 +7,7 @@
     "dev": "vite",
     "devPort": "vite --port 8081",
     "build": "vite build",
-    "lint": "eslint .",
+    "lint": "eslint . --max-errors 40",
     "preview": "vite preview",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

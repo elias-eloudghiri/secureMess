@@ -38,3 +38,5 @@ mongodb-data/**
 mongo-data/**
 mongodb-data-prod/**
 mongodb-data-dev/**
+
+**/node_modules/**
