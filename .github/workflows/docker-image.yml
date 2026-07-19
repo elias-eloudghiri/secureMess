@@ -23,7 +23,7 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: docker9uriel
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          password: ${{ secrets.PAS }}
 
       - name: Extract metadata (backend)
         id: meta-backend
