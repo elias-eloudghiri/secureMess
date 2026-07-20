@@ -21,7 +21,6 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          registry: ${{ vars.DOCKERREPO }}
           username: docker9uriel
           password: ${{ secrets.PAT }}
 
