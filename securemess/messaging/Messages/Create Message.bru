@@ -1,0 +1,22 @@
+meta {
+  name: Create Message
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/v1/messages/create/{{conversationId}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "messageContent": "Hello"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

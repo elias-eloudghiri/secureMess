@@ -1,11 +1,12 @@
 services:
   mongodb:
-    image: mongo:latest
+    image:
+      mongo:8.2.4
     container_name: securemessage-mongo-dev
     ports:
       - "27017:27017"
     volumes:
-      - ./mongodb-data:/data/db
+      - ./mongodb-data-dev:/data/db
     env_file:
       - .env
     networks:

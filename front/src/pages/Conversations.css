@@ -1,0 +1,55 @@
+/* src/pages/Conversations.css */
+
+.conversations-container {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.new-chat-form {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.conversations-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.conversations-logout-button {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.new-chat-input {
+  flex: 1;
+  padding: 8px;
+}
+
+.new-chat-button {
+  padding: 8px 16px;
+}
+
+.conversations-list {
+  list-style: none;
+  padding: 0;
+}
+
+.conversation-item {
+  padding: 15px;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.2s ease;
+}
+
+.conversation-item:hover {
+  background-color: #f1f1f1;
+}

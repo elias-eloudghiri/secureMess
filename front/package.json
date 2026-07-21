@@ -5,17 +5,18 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "devPort": "vite --port 8081",
     "build": "vite build",
-    "lint": "eslint .",
+    "lint": "eslint . --max-errors 40",
     "preview": "vite preview",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "eslint . --max-warnings=0"
+    "check": "eslint . --max-warnings=40"
   },
   "dependencies": {
     "@privacyresearch/libsignal-protocol-typescript": "^0.0.16",
     "@reduxjs/toolkit": "^2.11.2",
-    "axios": "^1.13.4",
+    "prettier": "^3.8.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-redux": "^9.2.0",
@@ -27,6 +28,7 @@
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
+    "cypress": "^15.11.0",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",

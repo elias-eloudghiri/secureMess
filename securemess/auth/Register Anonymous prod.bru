@@ -1,0 +1,30 @@
+meta {
+  name: Register Anonymous prod
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{prodUrl}}/auth/register
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "password": "123456789",
+    "identityKey": "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE=",
+    "signedPreKey": "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE=",
+    "signedPreKeyId": 1,
+    "signedPreKeySignature": "MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE=",
+    "oneTimePreKeys": []
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 200 || res.getStatus() === 201) {
+    const body = res.getBody();
+    bru.setEnvVar("createdUserUuid", body.uuid);
+    bru.setEnvVar("accessToken", body.accessToken);
+  }
+}

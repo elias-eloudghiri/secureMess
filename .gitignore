@@ -34,4 +34,10 @@ build/
 
 .env
 
+mongodb-data/**
+mongo-data/**
+mongodb-data-prod/**
+mongodb-data-dev/**
+
+**/node_modules/**
 mongodb-data/

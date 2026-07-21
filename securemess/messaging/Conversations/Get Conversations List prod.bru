@@ -1,0 +1,15 @@
+meta {
+  name: Get Conversations List prod
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{prodUrl}}/v1/conversations/
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  targetUuid: {{createdUserUuid}}
+}

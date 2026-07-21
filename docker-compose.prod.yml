@@ -5,9 +5,9 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - mongo-data-prod:/data/db
+      - ./mongodb-data-prod:/data/db
     env_file:
-      - .env.local
+      - .env
     networks:
       - secure-network
     healthcheck:
@@ -20,10 +20,10 @@ services:
   backend:
     build: ./backend
     container_name: securemessage-backend-prod
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     env_file:
-      - .env.local
+      - .env
     depends_on:
       mongodb:
         condition: service_healthy
@@ -31,14 +31,23 @@ services:
       - secure-network
 
   frontend:
-    build: ./front
+    build:
+      context: ./front
+      args:
+        - VITE_BACKEND_URL=${VITE_BACKEND_URL}
+        - VITE_WS_URL=${VITE_WS_URL}
     container_name: securemessage-frontend-prod
+    env_file:
+      - .env
     ports:
-      - "80:80"
+      - "443:443"
     depends_on:
       - backend
     networks:
       - secure-network
+    volumes:
+      - /etc/nginx/sites-available/secure-mess.fr:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
 
 volumes:
   mongo-data-prod:

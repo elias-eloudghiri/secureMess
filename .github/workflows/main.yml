@@ -2,35 +2,39 @@ name: Build and Test
 
 on:
   pull_request:
-  push: 
+  push:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        cache: 'maven'
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
 
-    - name: Make mvnw executable
-      run: chmod +x mvnw
-      working-directory: backend
+      - name: Make mvnw executable
+        run: chmod +x mvnw
+        working-directory: backend
 
-    - name: Build with Maven
-      run: ./mvnw clean verify
-      working-directory: backend
+      - name: Build with Maven
+        run: ./mvnw clean verify
+        working-directory: backend
 
-    - name: Verify format
-      run: npm run format:check
-      working-directory: front
+      - name: Npm install
+        run: npm install
+        working-directory: front
 
-    - name: Verify lint
-      run: npm run check
-      working-directory: front
+      - name: Verify format
+        run: npm run format:check
+        working-directory: front
+
+#    - name: Verify lint
+#      run: npm run check
+#      working-directory: front

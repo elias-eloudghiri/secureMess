@@ -1,79 +1,120 @@
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { setAuthenticatedUser } from '../store/userSlice';
-import signalService from '../services/signalService';
-import axios from "axios";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+import { setAuthenticatedUser } from "../store/userSlice";
+import signalService from "../services/signalService";
+import api from "../api";
+import "./Auth.css";
 
 const Register = () => {
-    const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const dispatch = useDispatch();
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [generatedUuid, setGeneratedUuid] = useState("");
+  const [generatedKeys, setGeneratedKeys] = useState(null);
+  const [generatedTokens, setGeneratedTokens] = useState(null);
+  const dispatch = useDispatch();
 
-    const handleRegister = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError('');
+  const handleRegister = async (e) => {
+    e.preventDefault();
 
-        try {
-            // 1. Generate Signal Keys
-            const keys = await signalService.generateKeysForRegistration();
+    if (generatedUuid) {
+      // User has already registered and is now proceeding to chat
+      dispatch(
+        setAuthenticatedUser({
+          username: generatedUuid,
+          keys: generatedKeys,
+          accessToken: generatedTokens.accessToken,
+          refreshToken: generatedTokens.refreshToken,
+        })
+      );
+      return;
+    }
 
-            // 2. Prepare payload
-            const payload = {
-                password: password,
-                identityKey: signalService.arrayBufferToBase64(keys.identityKeyPair.pubKey),
-                signedPreKey: signalService.arrayBufferToBase64(keys.signedPreKey.keyPair.pubKey),
-                signedPreKeyId: keys.signedPreKey.keyId,
-                signedPreKeySignature: signalService.arrayBufferToBase64(keys.signedPreKey.signature),
-                oneTimePreKeys: keys.preKeys.map(pk => ({
-                    keyId: pk.keyId,
-                    publicKey: signalService.arrayBufferToBase64(pk.keyPair.pubKey)
-                }))
-            };
+    setLoading(true);
+    setError("");
 
-            // 3. Send to backend
-            //const response = await api.post('/auth/register', payload);
-            const response = await axios.post('http://localhost:8080/api/auth/register', payload);
-            const username = response.data;
+    try {
+      // 1. Generate Signal Keys
+      const keys = await signalService.generateKeysForRegistration();
 
-            // 4. Store state
-            dispatch(setAuthenticatedUser({
-                username: username,
-                keys: keys // Store full key objects locally (sensitive!)
-            }));
+      // 2. Prepare payload
+      const payload = {
+        password: password,
+        identityKey: keys.identityKeyPair.pubKey,
+        signedPreKey: keys.signedPreKey.keyPair.pubKey,
+        signedPreKeyId: keys.signedPreKey.keyId,
+        signedPreKeySignature: keys.signedPreKey.signature,
+        oneTimePreKeys: keys.preKeys.map((pk) => ({
+          keyId: pk.keyId,
+          publicKey: pk.keyPair.pubKey,
+        })),
+      };
 
-            // Ideally save to indexedDB or localStorage here for persistence
+      // 3. Send to backend
+      const response = await api.post("/auth/register", payload);
+      const { uuid, accessToken, refreshToken } = response.data;
 
-        } catch (err) {
-            console.error(err);
-            setError('Registration failed');
-        } finally {
-            setLoading(false);
-        }
-    };
+      // 4. Store state locally to display, don't dispatch immediately
+      setGeneratedUuid(uuid);
+      setGeneratedKeys(keys);
+      setGeneratedTokens({ accessToken, refreshToken });
+    } catch (err) {
+      console.error(err);
+      setError("Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-        <div style={{ maxWidth: '400px', margin: '2rem auto', padding: '1rem', border: '1px solid #ccc', borderRadius: '8px' }}>
-            <h2>Secure Registration</h2>
-            <form onSubmit={handleRegister}>
-                <div style={{ marginBottom: '1rem' }}>
-                    <label>Choose a Password:</label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        style={{ width: '100%', padding: '0.5rem' }}
-                    />
-                </div>
-                <button type="submit" disabled={loading} style={{ width: '100%', padding: '0.5rem', background: '#007bff', color: 'white', border: 'none', borderRadius: '4px' }}>
-                    {loading ? 'Generating Keys...' : 'Register Anonymously'}
-                </button>
-                {error && <p style={{ color: 'red' }}>{error}</p>}
-            </form>
+  return (
+    <div className="auth-container">
+      <h2>Secure Registration</h2>
+      <form onSubmit={handleRegister}>
+        {generatedUuid && (
+          <div className="auth-form-group">
+            <label className="auth-success-label">
+              Registration Successful! Save your UUID:
+            </label>
+            <input
+              type="text"
+              readOnly
+              value={generatedUuid}
+              className="auth-input auth-input-readonly"
+            />
+          </div>
+        )}
+        <div className="auth-form-group">
+          <label>Choose a Password:</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={8}
+            className="auth-input"
+          />
         </div>
-    );
+        <button
+          type="submit"
+          disabled={loading}
+          className={`auth-button ${generatedUuid ? "auth-button-success" : "auth-button-primary"}`}>
+          {loading
+            ? "Processing..."
+            : generatedUuid
+              ? "Proceed to Chat"
+              : "Register Anonymously"}
+        </button>
+        {error && <p className="auth-error">{error}</p>}
+
+        <div className="auth-link-container">
+          <Link to="/login" className="auth-link">
+            Already have an account? Login here.
+          </Link>
+        </div>
+      </form>
+    </div>
+  );
 };
 
 export default Register;
