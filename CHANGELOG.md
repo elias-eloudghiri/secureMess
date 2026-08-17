@@ -29,7 +29,7 @@ sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 - **Infrastructure** :
     - Orchestration Docker Compose (`docker-compose.prod.yml`, `docker-compose.dev.yml`)
     - Reverse proxy nginx avec TLS 1.3 (Let's Encrypt)
-    - CI/CD GitHub Actions vers Docker Hub (`docker9uriel/securemessage-backend`, `docker9uriel/securemessage-frontend`)
+    - CI/CD GitHub Actions vers Docker Hub (`elias18/securemessage-backend`, `elias18/securemessage-frontend`)
 - **Sécurité** :
     - Headers HTTP renforcés (HSTS, CSP, Referrer-Policy, Permissions-Policy, COOP, CORP, COEP)
     - CORS verrouillé à `https://secure-mess.fr`
