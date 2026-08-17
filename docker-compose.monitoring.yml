@@ -91,7 +91,7 @@ networks:
   # Réseau applicatif EXISTANT (backend + mongodb). Adapte le nom !
   securemess:
     external: true
-    name: securemess_default
+    name: securemess_secure-network
   # Réseau interne dédié à la supervision
   monitoring:
     driver: bridge
