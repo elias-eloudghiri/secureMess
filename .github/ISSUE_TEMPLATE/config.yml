@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔒 Signalement de vulnérabilité de sécurité
+    url: https://github.com/elias-eloudghiri/secureMess/security/advisories/new
+    about: "Pour toute faille de sécurité, utiliser un advisory privé plutôt qu'une issue publique."
+  - name: 💬 Question ou demande d'aide
+    url: https://github.com/elias-eloudghiri/secureMess/discussions
+    about: "Pour les questions d'usage, ouvrir une discussion plutôt qu'une issue."
