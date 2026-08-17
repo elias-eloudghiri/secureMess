@@ -16,7 +16,7 @@
   "dependencies": {
     "@privacyresearch/libsignal-protocol-typescript": "^0.0.16",
     "@reduxjs/toolkit": "^2.11.2",
-    "prettier": "^3.8.1",
+    "prettier": "^3.9.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-redux": "^9.2.0",
