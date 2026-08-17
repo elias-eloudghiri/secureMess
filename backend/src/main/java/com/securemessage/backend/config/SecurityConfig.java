@@ -77,7 +77,13 @@ public class SecurityConfig {
                         }))
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers("/api/auth/**", "/ws/chat", "/ws/chat/**")
+                auth.requestMatchers(
+                        "/api/auth/**",
+                        "/ws/chat",
+                        "/ws/chat/**",
+                        "**/health",
+                        "/actuator/prometheus",
+                        "**/info")
                     .permitAll()
                     .anyRequest()
                     .authenticated())

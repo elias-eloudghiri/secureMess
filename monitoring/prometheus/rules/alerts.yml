@@ -1,0 +1,116 @@
+# =============================================================
+# SecureMessage — Règles d'alerte (C4.1.2 : indicateurs + signalements)
+# Chaque règle = 1 indicateur de suivi surveillé en continu.
+# =============================================================
+groups:
+
+  # ---------- DISPONIBILITÉ ----------
+  - name: disponibilite
+    rules:
+      - alert: BackendDown
+        expr: up{job="backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Backend Spring Boot injoignable"
+          description: "Le backend {{ $labels.instance }} ne répond plus depuis 1 min."
+
+      - alert: SiteDown
+        expr: probe_success == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Site secure-mess.fr injoignable"
+          description: "La sonde HTTPS externe échoue depuis 2 min ({{ $labels.instance }})."
+
+      - alert: MongoDown
+        expr: mongodb_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "MongoDB injoignable"
+          description: "L'exporter ne parvient plus à joindre MongoDB depuis 1 min."
+
+      - alert: SslCertExpiringSoon
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 15
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Certificat TLS bientôt expiré"
+          description: "Le certificat de {{ $labels.instance }} expire dans moins de 15 jours (renouvellement Let's Encrypt à vérifier)."
+
+  # ---------- LATENCE & ERREURS (4 golden signals) ----------
+  - name: performance-backend
+    rules:
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(http_server_requests_seconds_count{job="backend",status=~"5.."}[5m]))
+          /
+          sum(rate(http_server_requests_seconds_count{job="backend"}[5m])) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Taux d'erreur 5xx > 5%"
+          description: "Plus de 5% des requêtes renvoient une erreur serveur sur 5 min."
+
+      - alert: HighLatencyP95
+        expr: |
+          histogram_quantile(0.95,
+            sum by (le) (rate(http_server_requests_seconds_bucket{job="backend"}[5m]))
+          ) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Latence P95 > 1s"
+          description: "Le 95e percentile de latence dépasse 1s sur 5 min."
+
+  # ---------- SATURATION (JVM + hôte) ----------
+  - name: saturation
+    rules:
+      - alert: HighJvmHeap
+        expr: |
+          sum(jvm_memory_used_bytes{job="backend",area="heap"})
+          /
+          sum(jvm_memory_max_bytes{job="backend",area="heap"}) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Heap JVM > 90%"
+          description: "La mémoire heap de la JVM dépasse 90% depuis 5 min (risque OOM)."
+
+      - alert: HostHighCpu
+        expr: 100 - (avg by(instance)(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU hôte > 85%"
+          description: "Charge CPU du VPS élevée depuis 5 min."
+
+      - alert: HostHighMemory
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "RAM hôte > 90%"
+          description: "Mémoire du VPS quasi saturée depuis 5 min."
+
+      - alert: HostLowDisk
+        expr: |
+          (node_filesystem_avail_bytes{mountpoint="/",fstype!~"tmpfs|overlay"}
+          /
+          node_filesystem_size_bytes{mountpoint="/",fstype!~"tmpfs|overlay"}) * 100 < 15
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Espace disque < 15%"
+          description: "Il reste moins de 15% d'espace disque sur / (VPS)."

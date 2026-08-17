@@ -1,0 +1,12 @@
+# Charge automatiquement tous les dashboards JSON déposés dans /var/lib/grafana/dashboards
+apiVersion: 1
+providers:
+  - name: 'SecureMessage'
+    orgId: 1
+    folder: 'SecureMessage'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
