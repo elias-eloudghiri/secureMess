@@ -82,7 +82,7 @@ public class SecurityConfig {
                         "/ws/chat",
                         "/ws/chat/**",
                         "**/health",
-                        "**/actuator/prometheus",
+                        "/actuator/prometheus",
                         "**/info")
                     .permitAll()
                     .anyRequest()
