@@ -15,6 +15,28 @@ sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 
 ---
 
+## [0.2] - 2026-08-17
+
+### Ajouté
+
+- **Supervision (BC04 · C4.1.2)** :
+    - Stack Prometheus + Grafana + Alertmanager + exporters (node, mongodb, blackbox) via
+      `docker-compose.monitoring.yml`
+    - Métriques backend exposées via Actuator + `micrometer-registry-prometheus` (`/actuator/prometheus`)
+    - 11 règles d'alerte (disponibilité, latence P95, taux d'erreur 5xx, saturation JVM/CPU/RAM/disque, expiration TLS)
+    - Notifications d'incident et de résolution vers un webhook Discord (Alertmanager)
+- **Maintenance (BC04)** :
+    - Mises à jour des dépendances automatisées via Dependabot (Maven, npm, GitHub Actions, Docker)
+    - Formulaire de consignation d'anomalie GitHub Issues (`bug_report.yml`) + redirection des vulnérabilités vers un
+      advisory privé
+
+### Sécurité
+
+- Endpoints Actuator restreints à `health,info,prometheus` en lecture seule ; interfaces de supervision exposées
+  uniquement sur `127.0.0.1` (accès par tunnel SSH)
+
+---
+
 ## [0.1] - 2026-07-20
 
 ### Ajouté
